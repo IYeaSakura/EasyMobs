@@ -18,6 +18,7 @@ import java.util.Map;
 /**
  * Builds an {@link ItemStack} from a {@link CustomItemTemplate}.
  */
+@SuppressWarnings("deprecation")
 public final class ItemBuilder {
 
     private static final NamespacedKey ITEM_ID_KEY = new NamespacedKey(EasyMobsPlugin.getInstance(), "ezmobs_item_id");

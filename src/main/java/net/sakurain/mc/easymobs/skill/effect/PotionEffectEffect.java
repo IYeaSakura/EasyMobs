@@ -1,6 +1,8 @@
 package net.sakurain.mc.easymobs.skill.effect;
 
 import net.sakurain.mc.easymobs.skill.SkillContext;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -13,14 +15,14 @@ public class PotionEffectEffect extends AbstractSkillEffect {
 
     @Override
     public void execute(SkillContext context) {
-        String typeName = string("type", "").toUpperCase();
+        String typeName = string("type", "").toLowerCase();
         double durationSeconds = number("duration", 5.0);
         int level = integer("level", 1);
         boolean ambient = bool("ambient", false);
         boolean particles = bool("particles", true);
         boolean icon = bool("icon", true);
 
-        PotionEffectType effectType = PotionEffectType.getByName(typeName);
+        PotionEffectType effectType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft(typeName));
         if (effectType == null) {
             return;
         }

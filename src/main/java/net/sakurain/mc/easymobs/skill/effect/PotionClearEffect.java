@@ -1,6 +1,8 @@
 package net.sakurain.mc.easymobs.skill.effect;
 
 import net.sakurain.mc.easymobs.skill.SkillContext;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffectType;
 
@@ -12,7 +14,7 @@ public class PotionClearEffect extends AbstractSkillEffect {
 
     @Override
     public void execute(SkillContext context) {
-        String typeName = string("type", "").toUpperCase();
+        String typeName = string("type", "").toLowerCase();
         LivingEntity target = singleTarget(context);
         if (target == null) {
             return;
@@ -23,7 +25,7 @@ public class PotionClearEffect extends AbstractSkillEffect {
             }
             return;
         }
-        PotionEffectType effectType = PotionEffectType.getByName(typeName);
+        PotionEffectType effectType = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft(typeName));
         if (effectType != null) {
             target.removePotionEffect(effectType);
         }

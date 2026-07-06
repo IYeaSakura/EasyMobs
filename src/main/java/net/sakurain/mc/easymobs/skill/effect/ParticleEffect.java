@@ -3,7 +3,9 @@ package net.sakurain.mc.easymobs.skill.effect;
 import net.sakurain.mc.easymobs.skill.SkillContext;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
+import org.bukkit.Registry;
 
 public class ParticleEffect extends AbstractSkillEffect {
 
@@ -13,7 +15,7 @@ public class ParticleEffect extends AbstractSkillEffect {
 
     @Override
     public void execute(SkillContext context) {
-        String particleName = string("particle", "").toUpperCase();
+        String particleName = string("particle", "").toLowerCase();
         if (particleName.isEmpty()) {
             return;
         }
@@ -34,7 +36,8 @@ public class ParticleEffect extends AbstractSkillEffect {
         double speed = number("speed", 0.0);
 
         Object data = null;
-        if (particle == Particle.DUST || particle.name().equals("REDSTONE")) {
+        String particleNameResolved = particle.name();
+        if (particleNameResolved.equals("DUST") || particleNameResolved.equals("REDSTONE")) {
             Color color = parseColor(string("dust_color", "FFFFFF"));
             float size = (float) number("dust_size", 1.0);
             data = new Particle.DustOptions(color, size);
@@ -44,18 +47,13 @@ public class ParticleEffect extends AbstractSkillEffect {
     }
 
     private Particle parseParticle(String name) {
-        if (name.equals("REDSTONE")) {
-            try {
-                return Particle.valueOf("DUST");
-            } catch (IllegalArgumentException ignored) {
-                // fall through to REDSTONE
+        if (name.equals("redstone")) {
+            Particle dust = Registry.PARTICLE_TYPE.get(NamespacedKey.minecraft("dust"));
+            if (dust != null) {
+                return dust;
             }
         }
-        try {
-            return Particle.valueOf(name);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        return Registry.PARTICLE_TYPE.get(NamespacedKey.minecraft(name));
     }
 
     private Color parseColor(String hex) {

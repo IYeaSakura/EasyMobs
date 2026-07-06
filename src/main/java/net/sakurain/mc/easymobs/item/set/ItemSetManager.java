@@ -2,15 +2,16 @@ package net.sakurain.mc.easymobs.item.set;
 
 import net.sakurain.mc.easymobs.EasyMobsPlugin;
 import net.sakurain.mc.easymobs.item.CustomItemTemplate;
+import net.sakurain.mc.easymobs.item.ItemEffectParser;
 import net.sakurain.mc.easymobs.item.ItemIdentifier;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
@@ -66,13 +67,54 @@ public final class ItemSetManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private ItemSetTemplate parseSet(String id, ConfigurationSection section) {
         String name = section.getString("name", id);
         List<String> lore = section.getStringList("lore");
         List<String> itemIds = section.getStringList("item_ids");
+
         List<ItemSetTemplate.SetRequirement> requirements = new ArrayList<>();
+        for (Object obj : section.getList("requirements", List.of())) {
+            if (obj instanceof Map<?, ?> raw) {
+                Map<String, Object> map = (Map<String, Object>) raw;
+                requirements.add(new ItemSetTemplate.SetRequirement(
+                        ItemEffectParser.getString(map, "type"),
+                        ItemEffectParser.getString(map, "value"),
+                        ItemEffectParser.getInt(map, "amount", 1)));
+            }
+        }
+
         List<ItemSetTemplate.SetBonus> bonuses = new ArrayList<>();
+        for (Object obj : section.getList("bonuses", List.of())) {
+            if (obj instanceof Map<?, ?> raw) {
+                Map<String, Object> map = (Map<String, Object>) raw;
+                List<CustomItemTemplate.EffectEntry> effects = ItemEffectParser.parseEffectEntries(
+                        ItemEffectParser.getList(map, "effects"), id);
+                List<String> messages = map.get("messages") instanceof List<?> list
+                        ? list.stream().map(Object::toString).toList()
+                        : List.of();
+                bonuses.add(new ItemSetTemplate.SetBonus(
+                        ItemEffectParser.getInt(map, "required_pieces", 2), effects, messages));
+            }
+        }
+
         List<ItemSetTemplate.AdvancedBonus> advancedBonuses = new ArrayList<>();
+        for (Object obj : section.getList("advanced_bonuses", List.of())) {
+            if (obj instanceof Map<?, ?> raw) {
+                Map<String, Object> map = (Map<String, Object>) raw;
+                List<CustomItemTemplate.EffectEntry> effects = ItemEffectParser.parseEffectEntries(
+                        ItemEffectParser.getList(map, "effects"), id);
+                List<String> messages = map.get("messages") instanceof List<?> list
+                        ? list.stream().map(Object::toString).toList()
+                        : List.of();
+                advancedBonuses.add(new ItemSetTemplate.AdvancedBonus(
+                        ItemEffectParser.getInt(map, "min_pieces", 2),
+                        ItemEffectParser.getInt(map, "max_pieces", 0),
+                        ItemEffectParser.getString(map, "condition"),
+                        effects, messages));
+            }
+        }
+
         return new ItemSetTemplate(id, name, lore, itemIds, requirements, bonuses, advancedBonuses);
     }
 
@@ -137,7 +179,11 @@ public final class ItemSetManager {
 
     private int countEquippedPieces(Player player, ItemSetTemplate set) {
         int count = 0;
-        for (ItemStack item : player.getInventory().getArmorContents()) {
+        ItemStack[] items = new ItemStack[6];
+        items[0] = player.getInventory().getItemInMainHand();
+        items[1] = player.getInventory().getItemInOffHand();
+        System.arraycopy(player.getInventory().getArmorContents(), 0, items, 2, 4);
+        for (ItemStack item : items) {
             if (item == null || item.isEmpty()) {
                 continue;
             }
@@ -147,22 +193,6 @@ public final class ItemSetManager {
             }
         }
         return count;
-    }
-
-    private static EquipmentSlotGroup toSlotGroup(org.bukkit.inventory.EquipmentSlot slot) {
-        if (slot == null) {
-            return EquipmentSlotGroup.ANY;
-        }
-        return switch (slot) {
-            case HAND -> EquipmentSlotGroup.MAINHAND;
-            case OFF_HAND -> EquipmentSlotGroup.OFFHAND;
-            case FEET -> EquipmentSlotGroup.FEET;
-            case LEGS -> EquipmentSlotGroup.LEGS;
-            case CHEST -> EquipmentSlotGroup.CHEST;
-            case HEAD -> EquipmentSlotGroup.HEAD;
-            case BODY -> EquipmentSlotGroup.BODY;
-            case SADDLE -> EquipmentSlotGroup.SADDLE;
-        };
     }
 
     private void applySetEffect(Player player, CustomItemTemplate.EffectEntry entry,
@@ -211,5 +241,21 @@ public final class ItemSetManager {
                 }
             }
         }
+    }
+
+    private static EquipmentSlotGroup toSlotGroup(org.bukkit.inventory.EquipmentSlot slot) {
+        if (slot == null) {
+            return EquipmentSlotGroup.ANY;
+        }
+        return switch (slot) {
+            case HAND -> EquipmentSlotGroup.MAINHAND;
+            case OFF_HAND -> EquipmentSlotGroup.OFFHAND;
+            case FEET -> EquipmentSlotGroup.FEET;
+            case LEGS -> EquipmentSlotGroup.LEGS;
+            case CHEST -> EquipmentSlotGroup.CHEST;
+            case HEAD -> EquipmentSlotGroup.HEAD;
+            case BODY -> EquipmentSlotGroup.BODY;
+            case SADDLE -> EquipmentSlotGroup.SADDLE;
+        };
     }
 }

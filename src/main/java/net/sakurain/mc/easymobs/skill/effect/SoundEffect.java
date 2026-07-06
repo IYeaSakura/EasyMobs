@@ -2,6 +2,8 @@ package net.sakurain.mc.easymobs.skill.effect;
 
 import net.sakurain.mc.easymobs.skill.SkillContext;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 
@@ -13,14 +15,12 @@ public class SoundEffect extends AbstractSkillEffect {
 
     @Override
     public void execute(SkillContext context) {
-        String soundName = string("sound", "").toUpperCase();
+        String soundName = string("sound", "").toLowerCase();
         if (soundName.isEmpty()) {
             return;
         }
-        Sound sound;
-        try {
-            sound = Sound.valueOf(soundName);
-        } catch (IllegalArgumentException e) {
+        Sound sound = Registry.SOUNDS.get(NamespacedKey.minecraft(soundName));
+        if (sound == null) {
             return;
         }
         Location location = location(context);

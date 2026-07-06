@@ -3,6 +3,8 @@ package net.sakurain.mc.easymobs.skill.effect;
 import net.sakurain.mc.easymobs.skill.SkillContext;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.inventory.ItemStack;
 
 public class DropItemEffect extends AbstractSkillEffect {
@@ -13,14 +15,12 @@ public class DropItemEffect extends AbstractSkillEffect {
 
     @Override
     public void execute(SkillContext context) {
-        String materialName = string("material", "").toUpperCase();
+        String materialName = string("material", "").toLowerCase();
         if (materialName.isEmpty()) {
             return;
         }
-        Material material;
-        try {
-            material = Material.valueOf(materialName);
-        } catch (IllegalArgumentException e) {
+        Material material = Registry.MATERIAL.get(NamespacedKey.minecraft(materialName));
+        if (material == null) {
             return;
         }
         int amount = integer("amount", 1);

@@ -8,13 +8,13 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -69,22 +69,10 @@ public final class ItemEffectHandler implements Listener {
         removePreviousEffects(player);
         removePreviousAttributes(player);
 
-        List<CustomItemTemplate.EffectEntry> potionEffects = new ArrayList<>();
-        List<CustomItemTemplate.EffectEntry> attributeEffects = new ArrayList<>();
-
         collectPassiveEffects(player, CustomItemTemplate.TriggerType.HOLD,
                 player.getInventory().getItemInMainHand(), player.getInventory().getItemInOffHand());
         collectPassiveEffects(player, CustomItemTemplate.TriggerType.WEAR,
                 player.getInventory().getArmorContents());
-
-        for (CustomItemTemplate.EffectEntry entry : potionEffects) {
-            applyPotionEffect(player, entry);
-        }
-        for (CustomItemTemplate.EffectEntry entry : attributeEffects) {
-            applyAttributeEffect(player, entry);
-        }
-
-        storeActiveEffects(player, potionEffects, attributeEffects);
     }
 
     private void collectPassiveEffects(Player player, CustomItemTemplate.TriggerType requiredTrigger, ItemStack... items) {
@@ -200,11 +188,6 @@ public final class ItemEffectHandler implements Listener {
         player.getPersistentDataContainer().remove(activeAttrsKey);
     }
 
-    private void storeActiveEffects(Player player, List<CustomItemTemplate.EffectEntry> potionEffects,
-                                    List<CustomItemTemplate.EffectEntry> attrEffects) {
-        // Effects and attributes are appended as they are applied; this method exists for future extension.
-    }
-
     private void appendActiveEffect(Player player, String effectId) {
         PersistentDataContainer pdc = player.getPersistentDataContainer();
         String existing = pdc.getOrDefault(activeEffectsKey, PersistentDataType.STRING, "");
@@ -311,9 +294,6 @@ public final class ItemEffectHandler implements Listener {
         }
     }
 
-    /**
-     * Removes all tracked effects and attributes from every online player and cancels the refresh task.
-     */
     private static EquipmentSlotGroup toSlotGroup(org.bukkit.inventory.EquipmentSlot slot) {
         if (slot == null) {
             return EquipmentSlotGroup.ANY;
@@ -330,6 +310,9 @@ public final class ItemEffectHandler implements Listener {
         };
     }
 
+    /**
+     * Removes all tracked effects and attributes from every online player and cancels the refresh task.
+     */
     public void clearAllEffects() {
         if (refreshTask != null) {
             refreshTask.cancel();

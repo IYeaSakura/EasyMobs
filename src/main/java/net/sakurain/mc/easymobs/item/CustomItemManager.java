@@ -10,7 +10,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,9 +74,9 @@ public final class CustomItemManager {
         boolean glow = section.getBoolean("glow", false);
         Map<Enchantment, Integer> enchantments = parseEnchantments(section.getConfigurationSection("enchantments"));
         boolean hideEnchants = section.getBoolean("hide_enchants", false);
-        List<CustomItemTemplate.ItemAttribute> attributes = parseAttributes(section.getMapList("attributes"));
-        List<CustomItemTemplate.ItemPassiveEffect> passiveEffects = parsePassiveEffects(section.getMapList("passive_effects"));
-        List<CustomItemTemplate.ItemAttackEffect> attackEffects = parseAttackEffects(section.getMapList("attack_effects"));
+        List<CustomItemTemplate.ItemAttribute> attributes = parseAttributes(section.getMapList("attributes"), id);
+        List<CustomItemTemplate.ItemPassiveEffect> passiveEffects = parsePassiveEffects(section.getMapList("passive_effects"), id);
+        List<CustomItemTemplate.ItemAttackEffect> attackEffects = parseAttackEffects(section.getMapList("attack_effects"), id);
         String setId = section.getString("set_id");
         boolean unbreakable = section.getBoolean("unbreakable", false);
         List<String> itemFlags = section.getStringList("item_flags");
@@ -121,6 +120,7 @@ public final class CustomItemManager {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private Map<Enchantment, Integer> parseEnchantments(ConfigurationSection section) {
         Map<Enchantment, Integer> map = new HashMap<>();
         if (section == null) {
@@ -137,6 +137,7 @@ public final class CustomItemManager {
         return map;
     }
 
+    @SuppressWarnings("deprecation")
     private Enchantment parseEnchantment(String value) {
         if (value == null) {
             return null;
@@ -146,7 +147,7 @@ public final class CustomItemManager {
     }
 
     @SuppressWarnings("unchecked")
-    private List<CustomItemTemplate.ItemAttribute> parseAttributes(List<?> list) {
+    private List<CustomItemTemplate.ItemAttribute> parseAttributes(List<?> list, String itemId) {
         List<CustomItemTemplate.ItemAttribute> result = new ArrayList<>();
         if (list == null) {
             return result;
@@ -156,60 +157,21 @@ public final class CustomItemManager {
                 continue;
             }
             Map<String, Object> map = (Map<String, Object>) raw;
-            Attribute attribute = parseAttribute(getString(map, "type"));
+            Attribute attribute = ItemEffectParser.parseAttribute(ItemEffectParser.getString(map, "type"));
             if (attribute == null) {
-                plugin.getLogger().warning("Unknown attribute: " + getString(map, "type"));
+                plugin.getLogger().warning("[" + itemId + "] Unknown attribute: " + ItemEffectParser.getString(map, "type"));
                 continue;
             }
-            double amount = getDouble(map, "amount", 0);
-            Operation operation = parseOperation(getString(map, "operation"));
-            EquipmentSlot slot = parseEquipmentSlot(getString(map, "slot"));
+            double amount = ItemEffectParser.getDouble(map, "amount", 0);
+            Operation operation = ItemEffectParser.parseOperation(ItemEffectParser.getString(map, "operation"));
+            EquipmentSlot slot = ItemEffectParser.parseEquipmentSlot(ItemEffectParser.getString(map, "slot"));
             result.add(new CustomItemTemplate.ItemAttribute(attribute, amount, operation, slot));
         }
         return result;
     }
 
-    @SuppressWarnings("removal")
-    private Attribute parseAttribute(String value) {
-        if (value == null) {
-            return null;
-        }
-        NamespacedKey key = NamespacedKey.minecraft(value.toLowerCase());
-        Attribute attribute = Registry.ATTRIBUTE.get(key);
-        if (attribute != null) {
-            return attribute;
-        }
-        try {
-            return Attribute.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    private Operation parseOperation(String value) {
-        if (value == null) {
-            return Operation.ADD_NUMBER;
-        }
-        try {
-            return Operation.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return Operation.ADD_NUMBER;
-        }
-    }
-
-    private EquipmentSlot parseEquipmentSlot(String value) {
-        if (value == null) {
-            return null;
-        }
-        try {
-            return EquipmentSlot.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
     @SuppressWarnings("unchecked")
-    private List<CustomItemTemplate.ItemPassiveEffect> parsePassiveEffects(List<?> list) {
+    private List<CustomItemTemplate.ItemPassiveEffect> parsePassiveEffects(List<?> list, String itemId) {
         List<CustomItemTemplate.ItemPassiveEffect> result = new ArrayList<>();
         if (list == null) {
             return result;
@@ -219,8 +181,9 @@ public final class CustomItemManager {
                 continue;
             }
             Map<String, Object> map = (Map<String, Object>) raw;
-            CustomItemTemplate.TriggerType trigger = parseTrigger(getString(map, "trigger"));
-            List<CustomItemTemplate.EffectEntry> effects = parseEffectEntries(getList(map, "effects"));
+            CustomItemTemplate.TriggerType trigger = parseTrigger(ItemEffectParser.getString(map, "trigger"));
+            List<CustomItemTemplate.EffectEntry> effects = ItemEffectParser.parseEffectEntries(
+                    ItemEffectParser.getList(map, "effects"), itemId);
             result.add(new CustomItemTemplate.ItemPassiveEffect(trigger, effects));
         }
         return result;
@@ -238,7 +201,7 @@ public final class CustomItemManager {
     }
 
     @SuppressWarnings("unchecked")
-    private List<CustomItemTemplate.ItemAttackEffect> parseAttackEffects(List<?> list) {
+    private List<CustomItemTemplate.ItemAttackEffect> parseAttackEffects(List<?> list, String itemId) {
         List<CustomItemTemplate.ItemAttackEffect> result = new ArrayList<>();
         if (list == null) {
             return result;
@@ -248,9 +211,10 @@ public final class CustomItemManager {
                 continue;
             }
             Map<String, Object> map = (Map<String, Object>) raw;
-            double chance = getDouble(map, "chance", 100);
-            CustomItemTemplate.TargetType target = parseTarget(getString(map, "target"));
-            List<CustomItemTemplate.EffectEntry> effects = parseEffectEntries(getList(map, "effects"));
+            double chance = ItemEffectParser.getDouble(map, "chance", 100);
+            CustomItemTemplate.TargetType target = parseTarget(ItemEffectParser.getString(map, "target"));
+            List<CustomItemTemplate.EffectEntry> effects = ItemEffectParser.parseEffectEntries(
+                    ItemEffectParser.getList(map, "effects"), itemId);
             result.add(new CustomItemTemplate.ItemAttackEffect(chance, target, effects));
         }
         return result;
@@ -265,183 +229,6 @@ public final class CustomItemManager {
         } catch (IllegalArgumentException e) {
             return CustomItemTemplate.TargetType.VICTIM;
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<CustomItemTemplate.EffectEntry> parseEffectEntries(List<?> list) {
-        List<CustomItemTemplate.EffectEntry> result = new ArrayList<>();
-        if (list == null) {
-            return result;
-        }
-        for (Object obj : list) {
-            if (!(obj instanceof Map<?, ?> raw)) {
-                continue;
-            }
-            Map<String, Object> map = (Map<String, Object>) raw;
-            CustomItemTemplate.EffectType type = parseEffectType(getString(map, "type"));
-            if (type == null) {
-                plugin.getLogger().warning("Unknown effect type: " + getString(map, "type"));
-                continue;
-            }
-            CustomItemTemplate.EffectEntry entry = parseEffectEntry(type, map);
-            if (entry != null) {
-                result.add(entry);
-            }
-        }
-        return result;
-    }
-
-    private CustomItemTemplate.EffectType parseEffectType(String value) {
-        if (value == null) {
-            return null;
-        }
-        try {
-            return CustomItemTemplate.EffectType.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private CustomItemTemplate.EffectEntry parseEffectEntry(CustomItemTemplate.EffectType type, Map<String, Object> map) {
-        return switch (type) {
-            case POTION -> {
-                PotionEffectType potion = parsePotionEffectType(getString(map, "potion_type"));
-                if (potion == null) {
-                    plugin.getLogger().warning("Unknown potion effect type: " + getString(map, "potion_type"));
-                    yield null;
-                }
-                yield new CustomItemTemplate.EffectEntry(type,
-                        potion, getInt(map, "duration", 200), getInt(map, "amplifier", 0),
-                        getBoolean(map, "ambient", false), getBoolean(map, "particles", true), getBoolean(map, "icon", true),
-                        null, 0, null, null,
-                        null, 0, 0, 0, 0,
-                        null, 0, 0,
-                        0);
-            }
-            case ATTRIBUTE -> {
-                Attribute attribute = parseAttribute(getString(map, "attribute"));
-                if (attribute == null) {
-                    plugin.getLogger().warning("Unknown attribute: " + getString(map, "attribute"));
-                    yield null;
-                }
-                yield new CustomItemTemplate.EffectEntry(type,
-                        null, 0, 0, false, false, false,
-                        attribute, getDouble(map, "amount", 0), parseOperation(getString(map, "operation")), parseEquipmentSlot(getString(map, "slot")),
-                        null, 0, 0, 0, 0,
-                        null, 0, 0,
-                        0);
-            }
-            case PARTICLE -> {
-                org.bukkit.Particle particle = parseParticle(getString(map, "particle"));
-                if (particle == null) {
-                    plugin.getLogger().warning("Unknown particle: " + getString(map, "particle"));
-                    yield null;
-                }
-                yield new CustomItemTemplate.EffectEntry(type,
-                        null, 0, 0, false, false, false,
-                        null, 0, null, null,
-                        particle, getInt(map, "count", 1), getDouble(map, "offset_x", 0.5),
-                        getDouble(map, "offset_y", 0.5), getDouble(map, "offset_z", 0.5),
-                        null, 0, 0,
-                        getDouble(map, "radius", 0));
-            }
-            case SOUND -> {
-                org.bukkit.Sound sound = parseSound(getString(map, "sound"));
-                if (sound == null) {
-                    plugin.getLogger().warning("Unknown sound: " + getString(map, "sound"));
-                    yield null;
-                }
-                yield new CustomItemTemplate.EffectEntry(type,
-                        null, 0, 0, false, false, false,
-                        null, 0, null, null,
-                        null, 0, 0, 0, 0,
-                        sound, (float) getDouble(map, "volume", 1.0), (float) getDouble(map, "pitch", 1.0),
-                        getDouble(map, "radius", 0));
-            }
-        };
-    }
-
-    private PotionEffectType parsePotionEffectType(String value) {
-        if (value == null) {
-            return null;
-        }
-        NamespacedKey key = NamespacedKey.minecraft(value.toLowerCase());
-        return Registry.EFFECT.get(key);
-    }
-
-    private org.bukkit.Particle parseParticle(String value) {
-        if (value == null) {
-            return null;
-        }
-        try {
-            return org.bukkit.Particle.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    @SuppressWarnings("removal")
-    private org.bukkit.Sound parseSound(String value) {
-        if (value == null) {
-            return null;
-        }
-        NamespacedKey key = NamespacedKey.minecraft(value.toLowerCase());
-        org.bukkit.Sound sound = Registry.SOUNDS.get(key);
-        if (sound != null) {
-            return sound;
-        }
-        try {
-            return org.bukkit.Sound.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    private String getString(Map<String, Object> map, String key) {
-        Object value = map.get(key);
-        return value == null ? null : value.toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<?> getList(Map<String, Object> map, String key) {
-        Object value = map.get(key);
-        if (value instanceof List<?> list) {
-            return list;
-        }
-        return null;
-    }
-
-    private int getInt(Map<String, Object> map, String key, int def) {
-        Object value = map.get(key);
-        if (value instanceof Number number) {
-            return number.intValue();
-        }
-        try {
-            return value == null ? def : Integer.parseInt(value.toString());
-        } catch (NumberFormatException e) {
-            return def;
-        }
-    }
-
-    private double getDouble(Map<String, Object> map, String key, double def) {
-        Object value = map.get(key);
-        if (value instanceof Number number) {
-            return number.doubleValue();
-        }
-        try {
-            return value == null ? def : Double.parseDouble(value.toString());
-        } catch (NumberFormatException e) {
-            return def;
-        }
-    }
-
-    private boolean getBoolean(Map<String, Object> map, String key, boolean def) {
-        Object value = map.get(key);
-        if (value instanceof Boolean b) {
-            return b;
-        }
-        return value == null ? def : Boolean.parseBoolean(value.toString());
     }
 
     /**
