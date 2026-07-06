@@ -4,7 +4,7 @@ import net.sakurain.mc.easymobs.skill.SkillContext;
 
 import java.util.Map;
 
-public interface SkillCondition {
+public interface SkillCondition extends net.sakurain.mc.easymobs.api.SkillCondition {
 
     String getType();
 

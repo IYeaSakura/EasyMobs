@@ -4,7 +4,7 @@ import net.sakurain.mc.easymobs.skill.SkillContext;
 
 import java.util.Map;
 
-public interface SkillEffect {
+public interface SkillEffect extends net.sakurain.mc.easymobs.api.SkillEffect {
 
     String getType();
 
