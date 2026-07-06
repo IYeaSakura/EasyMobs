@@ -3,7 +3,7 @@ version: '${project.version}'
 main: net.sakurain.mc.easymobs.EasyMobsPlugin
 api-version: '26.1.2'
 description: Lightweight custom mob/item plugin inspired by MythicMobs
-author: Sakurain
+author: Yuyang.Wang
 website: https://github.com/IYeaSakura/EasyMobs
 
 commands:
