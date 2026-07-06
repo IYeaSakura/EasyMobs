@@ -1,0 +1,39 @@
+name: EasyMobs
+version: '${project.version}'
+main: net.sakurain.mc.easymobs.EasyMobsPlugin
+api-version: '26.1.2'
+description: Lightweight custom mob/item plugin inspired by MythicMobs
+author: Sakurain
+website: https://github.com/IYeaSakura/EasyMobs
+
+commands:
+  ezmobs:
+    description: EasyMobs main command
+    usage: /ezmobs <subcommand>
+    aliases: [ezm, emobs]
+    permission: easymobs.use
+
+permissions:
+  easymobs.use:
+    description: Basic usage
+    default: true
+  easymobs.admin:
+    description: Admin access
+    default: op
+    children:
+      easymobs.give: true
+      easymobs.spawn: true
+      easymobs.reload: true
+      easymobs.list: true
+  easymobs.give:
+    description: Give custom items
+    default: op
+  easymobs.spawn:
+    description: Spawn custom mobs
+    default: op
+  easymobs.reload:
+    description: Reload configuration
+    default: op
+  easymobs.list:
+    description: List templates
+    default: true
