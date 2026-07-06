@@ -58,6 +58,22 @@ public final class SkillCooldownManager {
     }
 
     private static NamespacedKey key(String skillId) {
-        return new NamespacedKey(EasyMobsPlugin.getInstance(), KEY_PREFIX + skillId.toLowerCase());
+        return new NamespacedKey(EasyMobsPlugin.getInstance(), KEY_PREFIX + sanitize(skillId));
+    }
+
+    private static String sanitize(String skillId) {
+        if (skillId == null) {
+            return "null";
+        }
+        String lowered = skillId.toLowerCase();
+        StringBuilder sb = new StringBuilder(lowered.length());
+        for (char c : lowered.toCharArray()) {
+            if ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.' || c == '/') {
+                sb.append(c);
+            } else {
+                sb.append('_');
+            }
+        }
+        return sb.toString();
     }
 }

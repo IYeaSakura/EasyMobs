@@ -206,7 +206,11 @@ public final class ItemSetManager {
                 if (!appliedPotions.add(id)) {
                     break;
                 }
-                player.addPotionEffect(new PotionEffect(entry.getPotionType(), entry.getDuration(),
+                int duration = entry.getDuration();
+                if (duration < 0) {
+                    duration = Integer.MAX_VALUE;
+                }
+                player.addPotionEffect(new PotionEffect(entry.getPotionType(), duration,
                         entry.getAmplifier(), entry.isAmbient(), entry.isParticles(), entry.isIcon()));
             }
             case ATTRIBUTE -> {

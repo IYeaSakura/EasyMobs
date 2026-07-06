@@ -253,15 +253,7 @@ public final class CustomMobTemplate {
             return null;
         }
         NamespacedKey key = NamespacedKey.minecraft(value.toLowerCase());
-        Attribute attribute = Registry.ATTRIBUTE.get(key);
-        if (attribute != null) {
-            return attribute;
-        }
-        try {
-            return Attribute.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        return Registry.ATTRIBUTE.get(key);
     }
 
     private static AttributeModifier.Operation parseOperation(String value) {
@@ -393,11 +385,8 @@ public final class CustomMobTemplate {
         if (value == null) {
             return null;
         }
-        try {
-            return Particle.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        NamespacedKey key = NamespacedKey.minecraft(value.toLowerCase());
+        return Registry.PARTICLE_TYPE.get(key);
     }
 
     private static AmbientSoundConfig parseAmbientSound(ConfigurationSection section, String mobId) {
@@ -422,15 +411,7 @@ public final class CustomMobTemplate {
             return null;
         }
         NamespacedKey key = NamespacedKey.minecraft(value.toLowerCase());
-        Sound sound = Registry.SOUNDS.get(key);
-        if (sound != null) {
-            return sound;
-        }
-        try {
-            return Sound.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        return Registry.SOUNDS.get(key);
     }
 
     @SuppressWarnings("unchecked")

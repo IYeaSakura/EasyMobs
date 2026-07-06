@@ -30,6 +30,7 @@ public final class CustomMobManager {
      */
     public void load() {
         templates.clear();
+        plugin.getSkillManager().clearBindings();
         for (Map.Entry<String, YamlConfiguration> entry : configs.entrySet()) {
             loadConfig(entry.getKey(), entry.getValue());
         }

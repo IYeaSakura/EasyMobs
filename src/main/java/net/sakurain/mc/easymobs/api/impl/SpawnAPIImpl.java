@@ -2,6 +2,8 @@ package net.sakurain.mc.easymobs.api.impl;
 
 import net.sakurain.mc.easymobs.EasyMobsPlugin;
 import net.sakurain.mc.easymobs.api.SpawnAPI;
+import net.sakurain.mc.easymobs.api.event.CustomMobPreSpawnEvent;
+import net.sakurain.mc.easymobs.api.event.CustomMobSpawnEvent;
 import net.sakurain.mc.easymobs.mob.CustomMobTemplate;
 import net.sakurain.mc.easymobs.mob.MobSpawner;
 import net.sakurain.mc.easymobs.spawn.SpawnRule;
@@ -44,14 +46,20 @@ public class SpawnAPIImpl implements SpawnAPI {
         if (template == null) {
             return Optional.empty();
         }
+        int level = rule.getLevel() > 0 ? rule.getLevel() : rule.getRandomLevel();
+        CustomMobPreSpawnEvent preEvent = new CustomMobPreSpawnEvent(rule.getType(), location, level);
+        org.bukkit.Bukkit.getPluginManager().callEvent(preEvent);
+        if (preEvent.isCancelled()) {
+            return Optional.empty();
+        }
         LivingEntity entity = MobSpawner.spawn(template, location);
         if (entity == null) {
             return Optional.empty();
         }
-        int level = rule.getLevel() > 0 ? rule.getLevel() : rule.getRandomLevel();
-        if (level > 1) {
-            net.sakurain.mc.easymobs.mob.LevelSystem.applyLevel(entity, level, template);
+        if (preEvent.getLevel() > 1) {
+            net.sakurain.mc.easymobs.mob.LevelSystem.applyLevel(entity, preEvent.getLevel(), template);
         }
+        org.bukkit.Bukkit.getPluginManager().callEvent(new CustomMobSpawnEvent(rule.getType(), entity, location, preEvent.getLevel()));
         return Optional.of(entity);
     }
 

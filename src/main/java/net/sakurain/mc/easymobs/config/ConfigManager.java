@@ -48,19 +48,25 @@ public class ConfigManager {
         if (!dir.exists()) {
             dir.mkdirs();
         }
+        loadConfigsRecursive(dir, dirName, target);
+    }
 
-        File[] files = dir.listFiles((d, name) -> name.endsWith(".yml"));
-        if (files == null || files.length == 0) {
+    private void loadConfigsRecursive(File dir, String pathPrefix, Map<String, YamlConfiguration> target) {
+        File[] files = dir.listFiles();
+        if (files == null) {
             return;
         }
-
         for (File file : files) {
-            try {
-                YamlConfiguration config = new YamlConfiguration();
-                config.load(file);
-                target.put(file.getName(), config);
-            } catch (IOException | InvalidConfigurationException e) {
-                plugin.getLogger().log(Level.WARNING, "Failed to load " + dirName + "/" + file.getName(), e);
+            if (file.isDirectory()) {
+                loadConfigsRecursive(file, pathPrefix + "/" + file.getName(), target);
+            } else if (file.getName().endsWith(".yml")) {
+                try {
+                    YamlConfiguration config = new YamlConfiguration();
+                    config.load(file);
+                    target.put(pathPrefix + "/" + file.getName(), config);
+                } catch (IOException | InvalidConfigurationException e) {
+                    plugin.getLogger().log(Level.WARNING, "Failed to load " + pathPrefix + "/" + file.getName(), e);
+                }
             }
         }
     }

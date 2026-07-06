@@ -115,21 +115,12 @@ public final class ItemEffectParser {
         }
     }
 
-    @SuppressWarnings("removal")
     public static Attribute parseAttribute(String value) {
         if (value == null) {
             return null;
         }
         NamespacedKey key = NamespacedKey.minecraft(value.toLowerCase());
-        Attribute attribute = Registry.ATTRIBUTE.get(key);
-        if (attribute != null) {
-            return attribute;
-        }
-        try {
-            return Attribute.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        return Registry.ATTRIBUTE.get(key);
     }
 
     public static Operation parseOperation(String value) {
@@ -166,28 +157,16 @@ public final class ItemEffectParser {
         if (value == null) {
             return null;
         }
-        try {
-            return org.bukkit.Particle.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        NamespacedKey key = NamespacedKey.minecraft(value.toLowerCase());
+        return Registry.PARTICLE_TYPE.get(key);
     }
 
-    @SuppressWarnings("removal")
     public static org.bukkit.Sound parseSound(String value) {
         if (value == null) {
             return null;
         }
         NamespacedKey key = NamespacedKey.minecraft(value.toLowerCase());
-        org.bukkit.Sound sound = Registry.SOUNDS.get(key);
-        if (sound != null) {
-            return sound;
-        }
-        try {
-            return org.bukkit.Sound.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        return Registry.SOUNDS.get(key);
     }
 
     public static String getString(Map<String, Object> map, String key) {

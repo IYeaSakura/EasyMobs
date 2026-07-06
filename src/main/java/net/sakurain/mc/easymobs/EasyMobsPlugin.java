@@ -43,12 +43,13 @@ public class EasyMobsPlugin extends JavaPlugin {
         this.configManager = new ConfigManager(this);
         configManager.loadAll();
 
+        this.skillManager = new SkillManager(configManager.getSkillConfigs());
+
         this.itemSetManager = new ItemSetManager(this);
         itemSetManager.load(configManager.getSetConfigs());
 
         this.itemManager = new CustomItemManager(configManager.getItemConfigs());
         this.mobManager = new CustomMobManager(configManager.getMobConfigs());
-        this.skillManager = new SkillManager(configManager.getSkillConfigs());
         this.spawnManager = new SpawnManager(configManager.getSpawnConfigs());
 
         registerListeners();

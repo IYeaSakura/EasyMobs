@@ -1,6 +1,7 @@
 package net.sakurain.mc.easymobs.mob;
 
 import net.sakurain.mc.easymobs.EasyMobsPlugin;
+import net.sakurain.mc.easymobs.ai.CustomAIController;
 import net.sakurain.mc.easymobs.item.CustomItemTemplate;
 import net.sakurain.mc.easymobs.item.ItemBuilder;
 import net.sakurain.mc.easymobs.util.MessageUtil;
@@ -8,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -35,6 +37,7 @@ import java.util.Map;
 /**
  * Spawns and configures {@link LivingEntity} instances from {@link CustomMobTemplate}s.
  */
+@SuppressWarnings("deprecation")
 public final class MobSpawner {
 
     private static final NamespacedKey MOB_ID_KEY = new NamespacedKey(EasyMobsPlugin.getInstance(), "ezmobs_mob_id");
@@ -54,7 +57,12 @@ public final class MobSpawner {
             return null;
         }
 
-        Entity entity = location.getWorld().spawnEntity(location, template.getType());
+        World world = location.getWorld();
+        if (!world.isChunkLoaded(location.getBlockX() >> 4, location.getBlockZ() >> 4)) {
+            return null;
+        }
+
+        Entity entity = world.spawnEntity(location, template.getType());
         if (!(entity instanceof LivingEntity living)) {
             entity.remove();
             return null;
@@ -77,6 +85,13 @@ public final class MobSpawner {
         applyBreakDoor(entity, template);
         applyPdc(entity, template);
         applyBossBar(entity, template);
+
+        if (entity instanceof org.bukkit.entity.Mob mob) {
+            CustomMobTemplate.AIConfig ai = template.getAi();
+            if (ai != null && ai.useCustomAi()) {
+                CustomAIController.getInstance().setupAI(mob, template);
+            }
+        }
 
         MobTracker.getInstance().track(entity, template);
     }

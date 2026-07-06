@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -104,7 +103,12 @@ public final class MobEquipmentAttackHandler implements Listener {
                 if (instance == null) {
                     break;
                 }
-                NamespacedKey key = new NamespacedKey(EasyMobsPlugin.getInstance(), "ezmobs_mob_attr_" + UUID.randomUUID());
+                NamespacedKey key = new NamespacedKey(EasyMobsPlugin.getInstance(),
+                        "ezmobs_mob_attack_" + entry.getAttribute().getKey().getKey() + "_" + entry.getAttributeSlot());
+                instance.getModifiers().stream()
+                        .filter(m -> m.getKey().equals(key))
+                        .findFirst()
+                        .ifPresent(instance::removeModifier);
                 instance.addModifier(new AttributeModifier(key, entry.getAttributeAmount(),
                         entry.getAttributeOperation(), toSlotGroup(entry.getAttributeSlot())));
             }

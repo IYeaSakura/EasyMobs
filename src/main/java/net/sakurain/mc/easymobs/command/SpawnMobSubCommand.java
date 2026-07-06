@@ -43,9 +43,9 @@ public class SpawnMobSubCommand implements SubCommand {
         }
 
         int level = 1;
-        if (args.length == 6) {
+        if (args.length >= 5) {
             try {
-                level = Integer.parseInt(args[5]);
+                level = Integer.parseInt(args[4]);
             } catch (NumberFormatException e) {
                 sender.sendMessage(MessageUtil.error("Invalid level!"));
                 return true;

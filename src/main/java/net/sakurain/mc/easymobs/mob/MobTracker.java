@@ -236,7 +236,8 @@ public final class MobTracker {
 
     private void startAITask(UUID uuid, CustomMobTemplate template, List<BukkitTask> tasks) {
         CustomMobTemplate.AIConfig ai = template.getAi();
-        if (!ai.useCustomAi() && !ai.alwaysAggressive()) {
+        // The custom AI goal system handles targeting when useCustomAi is enabled.
+        if (ai.useCustomAi() || !ai.alwaysAggressive()) {
             return;
         }
         tasks.add(SchedulerUtil.runTimer(AI_UPDATE_INTERVAL, AI_UPDATE_INTERVAL, () -> {
@@ -392,6 +393,23 @@ public final class MobTracker {
      */
     public static NamespacedKey getMobIdKey() {
         return MOB_ID_KEY;
+    }
+
+    /**
+     * Returns all currently tracked custom mobs that are still alive and loaded.
+     *
+     * @return list of tracked living entities
+     */
+    public List<LivingEntity> getTrackedMobs() {
+        List<LivingEntity> result = new ArrayList<>();
+        for (UUID uuid : new ArrayList<>(trackedMobs.keySet())) {
+            org.bukkit.entity.Entity entity = Bukkit.getEntity(uuid);
+            if (!(entity instanceof LivingEntity living) || living.isDead()) {
+                continue;
+            }
+            result.add(living);
+        }
+        return result;
     }
 
     /**

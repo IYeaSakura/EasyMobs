@@ -12,6 +12,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EquipmentSlotGroup;
@@ -30,7 +31,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -69,13 +69,22 @@ public final class ItemEffectHandler implements Listener {
         removePreviousEffects(player);
         removePreviousAttributes(player);
 
-        collectPassiveEffects(player, CustomItemTemplate.TriggerType.HOLD,
+        Set<String> appliedPotions = new HashSet<>();
+        Set<String> appliedAttrs = new HashSet<>();
+
+        collectPassiveEffects(player, appliedPotions, appliedAttrs, CustomItemTemplate.TriggerType.HOLD,
                 player.getInventory().getItemInMainHand(), player.getInventory().getItemInOffHand());
-        collectPassiveEffects(player, CustomItemTemplate.TriggerType.WEAR,
+        collectPassiveEffects(player, appliedPotions, appliedAttrs, CustomItemTemplate.TriggerType.WEAR,
                 player.getInventory().getArmorContents());
+
+        plugin.getItemSetManager().checkAndApply(player, appliedPotions, appliedAttrs);
+
+        saveEffectSet(player, activeEffectsKey, appliedPotions);
+        saveEffectSet(player, activeAttrsKey, appliedAttrs);
     }
 
-    private void collectPassiveEffects(Player player, CustomItemTemplate.TriggerType requiredTrigger, ItemStack... items) {
+    private void collectPassiveEffects(Player player, Set<String> appliedPotions, Set<String> appliedAttrs,
+                                       CustomItemTemplate.TriggerType requiredTrigger, ItemStack... items) {
         for (ItemStack item : items) {
             if (item == null || item.isEmpty()) {
                 continue;
@@ -89,8 +98,8 @@ public final class ItemEffectHandler implements Listener {
                 if (trigger == CustomItemTemplate.TriggerType.BOTH || trigger == requiredTrigger) {
                     for (CustomItemTemplate.EffectEntry entry : passive.getEffects()) {
                         switch (entry.getType()) {
-                            case POTION -> applyPotionEffect(player, entry);
-                            case ATTRIBUTE -> applyAttributeEffect(player, entry);
+                            case POTION -> applyPotionEffect(player, entry, appliedPotions);
+                            case ATTRIBUTE -> applyAttributeEffect(player, entry, appliedAttrs);
                             case PARTICLE -> spawnParticle(player, entry);
                             case SOUND -> playSound(player, entry);
                         }
@@ -100,22 +109,33 @@ public final class ItemEffectHandler implements Listener {
         }
     }
 
-    private void applyPotionEffect(Player player, CustomItemTemplate.EffectEntry entry) {
+    private void saveEffectSet(Player player, NamespacedKey key, Set<String> values) {
+        player.getPersistentDataContainer().set(key, PersistentDataType.STRING, String.join(";", values));
+    }
+
+    private void applyPotionEffect(Player player, CustomItemTemplate.EffectEntry entry, Set<String> appliedPotions) {
         PotionEffectType type = entry.getPotionType();
         if (type == null) {
             return;
         }
+        String id = type.getKey().toString();
+        if (!appliedPotions.add(id)) {
+            return;
+        }
+        int duration = entry.getDuration();
+        if (duration < 0) {
+            duration = Integer.MAX_VALUE;
+        }
         PotionEffect effect = new PotionEffect(type,
-                Math.max(REFRESH_INTERVAL + 10, entry.getDuration()),
+                Math.max(REFRESH_INTERVAL + 10, duration),
                 entry.getAmplifier(),
                 entry.isAmbient(),
                 entry.isParticles(),
                 entry.isIcon());
         player.addPotionEffect(effect);
-        appendActiveEffect(player, type.getKey().toString());
     }
 
-    private void applyAttributeEffect(Player player, CustomItemTemplate.EffectEntry entry) {
+    private void applyAttributeEffect(Player player, CustomItemTemplate.EffectEntry entry, Set<String> appliedAttrs) {
         Attribute attribute = entry.getAttribute();
         if (attribute == null) {
             return;
@@ -124,8 +144,11 @@ public final class ItemEffectHandler implements Listener {
         if (instance == null) {
             return;
         }
-        NamespacedKey key = new NamespacedKey(modifierNamespaceKey.getNamespace(),
-                attribute.getKey().getKey() + "_" + entry.getAttributeSlot());
+        String modifierId = attribute.getKey().getKey() + "_" + entry.getAttributeSlot();
+        if (!appliedAttrs.add(modifierId)) {
+            return;
+        }
+        NamespacedKey key = new NamespacedKey(modifierNamespaceKey.getNamespace(), modifierId);
         instance.getModifiers().stream()
                 .filter(m -> m.getKey().equals(key))
                 .findFirst()
@@ -135,7 +158,6 @@ public final class ItemEffectHandler implements Listener {
                 entry.getAttributeOperation(),
                 toSlotGroup(entry.getAttributeSlot()));
         instance.addModifier(modifier);
-        appendActiveAttribute(player, attribute.getKey().toString());
     }
 
     private void spawnParticle(Player player, CustomItemTemplate.EffectEntry entry) {
@@ -165,12 +187,7 @@ public final class ItemEffectHandler implements Listener {
     }
 
     private void removePreviousAttributes(Player player) {
-        Set<String> previous = readSet(player, activeAttrsKey);
-        for (String name : previous) {
-            Attribute attribute = org.bukkit.Registry.ATTRIBUTE.get(org.bukkit.NamespacedKey.fromString(name));
-            if (attribute == null) {
-                continue;
-            }
+        for (Attribute attribute : org.bukkit.Registry.ATTRIBUTE) {
             AttributeInstance instance = player.getAttribute(attribute);
             if (instance == null) {
                 continue;
@@ -188,22 +205,6 @@ public final class ItemEffectHandler implements Listener {
         player.getPersistentDataContainer().remove(activeAttrsKey);
     }
 
-    private void appendActiveEffect(Player player, String effectId) {
-        PersistentDataContainer pdc = player.getPersistentDataContainer();
-        String existing = pdc.getOrDefault(activeEffectsKey, PersistentDataType.STRING, "");
-        Set<String> set = new HashSet<>(Arrays.asList(existing.split(";")));
-        set.add(effectId);
-        pdc.set(activeEffectsKey, PersistentDataType.STRING, String.join(";", set));
-    }
-
-    private void appendActiveAttribute(Player player, String attributeId) {
-        PersistentDataContainer pdc = player.getPersistentDataContainer();
-        String existing = pdc.getOrDefault(activeAttrsKey, PersistentDataType.STRING, "");
-        Set<String> set = new HashSet<>(Arrays.asList(existing.split(";")));
-        set.add(attributeId);
-        pdc.set(activeAttrsKey, PersistentDataType.STRING, String.join(";", set));
-    }
-
     private Set<String> readSet(Player player, NamespacedKey key) {
         String value = player.getPersistentDataContainer().getOrDefault(key, PersistentDataType.STRING, "");
         if (value.isEmpty()) {
@@ -212,7 +213,7 @@ public final class ItemEffectHandler implements Listener {
         return new HashSet<>(Arrays.asList(value.split(";")));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player player)) {
             return;
@@ -275,8 +276,12 @@ public final class ItemEffectHandler implements Listener {
                 if (instance == null) {
                     break;
                 }
-                NamespacedKey key = new NamespacedKey(modifierNamespaceKey.getNamespace(),
-                        UUID.randomUUID().toString());
+                NamespacedKey key = new NamespacedKey(EasyMobsPlugin.getInstance(),
+                        "ezmobs_attack_" + entry.getAttribute().getKey().getKey() + "_" + entry.getAttributeSlot());
+                instance.getModifiers().stream()
+                        .filter(m -> m.getKey().equals(key))
+                        .findFirst()
+                        .ifPresent(instance::removeModifier);
                 instance.addModifier(new AttributeModifier(key, entry.getAttributeAmount(),
                         entry.getAttributeOperation(), toSlotGroup(entry.getAttributeSlot())));
             }

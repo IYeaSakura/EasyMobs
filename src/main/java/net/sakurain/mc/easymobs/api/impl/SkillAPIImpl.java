@@ -6,7 +6,9 @@ import net.sakurain.mc.easymobs.api.SkillCondition;
 import net.sakurain.mc.easymobs.api.SkillEffect;
 import net.sakurain.mc.easymobs.skill.SkillManager;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
@@ -45,8 +47,8 @@ public class SkillAPIImpl implements SkillAPI {
 
     @Override
     public long getRemainingCooldown(@NotNull LivingEntity entity, @NotNull String skillId) {
-        double remaining = plugin.getSkillManager().getRemainingCooldown(entity, skillId);
-        return (long) remaining;
+        double remainingSeconds = plugin.getSkillManager().getRemainingCooldown(entity, skillId);
+        return (long) (remainingSeconds * 1000.0);
     }
 
     @Override
@@ -79,19 +81,17 @@ public class SkillAPIImpl implements SkillAPI {
 
     @Override
     public void playParticle(@NotNull Location location, @NotNull String particleConfig) {
-        try {
-            Particle particle = Particle.valueOf(particleConfig.toUpperCase());
+        Particle particle = Registry.PARTICLE_TYPE.get(NamespacedKey.minecraft(particleConfig.toLowerCase()));
+        if (particle != null && location.getWorld() != null) {
             location.getWorld().spawnParticle(particle, location, 10, 0.5, 0.5, 0.5);
-        } catch (IllegalArgumentException ignored) {
         }
     }
 
     @Override
     public void playSound(@NotNull Location location, @NotNull String sound, float volume, float pitch) {
-        try {
-            Sound s = Sound.valueOf(sound.toUpperCase());
+        Sound s = Registry.SOUNDS.get(NamespacedKey.minecraft(sound.toLowerCase()));
+        if (s != null && location.getWorld() != null) {
             location.getWorld().playSound(location, s, volume, pitch);
-        } catch (IllegalArgumentException ignored) {
         }
     }
 

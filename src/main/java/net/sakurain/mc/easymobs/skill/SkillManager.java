@@ -177,6 +177,10 @@ public class SkillManager {
         executor.execute(fallback, context);
     }
 
+    public void clearBindings() {
+        bindingsByTrigger.clear();
+    }
+
     public void addBinding(SkillBinding binding) {
         if (binding == null || binding.trigger().isEmpty() || binding.skillId().isEmpty()) {
             return;

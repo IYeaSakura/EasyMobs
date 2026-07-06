@@ -55,6 +55,6 @@ public class EasyMobsAPIImpl implements EasyMobsAPI {
     @Override
     @NotNull
     public String getVersion() {
-        return plugin.getDescription().getVersion();
+        return plugin.getPluginMeta().getVersion();
     }
 }

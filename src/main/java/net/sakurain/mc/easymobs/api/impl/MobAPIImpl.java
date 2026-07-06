@@ -12,7 +12,6 @@ import net.sakurain.mc.easymobs.mob.MobTracker;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -81,15 +80,7 @@ public class MobAPIImpl implements MobAPI {
     @Override
     @NotNull
     public Collection<LivingEntity> getAllActiveMobs() {
-        List<LivingEntity> result = new ArrayList<>();
-        for (World world : Bukkit.getWorlds()) {
-            for (Entity entity : world.getEntities()) {
-                if (entity instanceof LivingEntity living && isCustomMob(living)) {
-                    result.add(living);
-                }
-            }
-        }
-        return result;
+        return MobTracker.getInstance().getTrackedMobs();
     }
 
     @Override
