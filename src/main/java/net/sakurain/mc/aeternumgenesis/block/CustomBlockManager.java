@@ -9,6 +9,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.ConfigurationSection;
@@ -192,6 +195,8 @@ public final class CustomBlockManager {
 
     /**
      * Records a damage hit on a custom block. Returns true if the block should break.
+     *
+     * <p>Broadcasts breaking animation, sound and particles to nearby players.</p>
      */
     public boolean damageBlock(@NotNull Location location, @NotNull Player player) {
         String templateId = getBlockTemplateId(location);
@@ -209,7 +214,8 @@ public final class CustomBlockManager {
         String key = locationKey(location);
         int hits = blockDamageHits.merge(key, 1, Integer::sum);
         float progress = Math.min(1.0f, hits / (float) hardness);
-        player.sendBlockDamage(location, progress);
+        broadcastBlockDamage(location, progress);
+        playHitEffects(location, template);
         if (hits >= hardness) {
             blockDamageHits.remove(key);
             return true;
@@ -219,6 +225,62 @@ public final class CustomBlockManager {
 
     public void resetBlockDamage(@NotNull Location location) {
         blockDamageHits.remove(locationKey(location));
+        broadcastBlockDamage(location, 0.0f);
+    }
+
+    private void broadcastBlockDamage(@NotNull Location location, float progress) {
+        World world = location.getWorld();
+        if (world == null) {
+            return;
+        }
+        for (Player viewer : world.getNearbyEntitiesByType(Player.class, location, 64.0)) {
+            viewer.sendBlockDamage(location, progress);
+        }
+    }
+
+    private void playHitEffects(@NotNull Location location, @NotNull CustomBlockTemplate template) {
+        World world = location.getWorld();
+        if (world == null) {
+            return;
+        }
+        Location center = location.clone().add(0.5, 0.5, 0.5);
+        Sound sound = resolveHitSound(template);
+        world.playSound(center, sound, org.bukkit.SoundCategory.BLOCKS, 1.0f, 0.9f + (float) Math.random() * 0.2f);
+        world.spawnParticle(Particle.BLOCK, center, 6, 0.3, 0.3, 0.3, location.getBlock().getBlockData());
+    }
+
+    @NotNull
+    private Sound resolveHitSound(@NotNull CustomBlockTemplate template) {
+        Material material = template.getMaterial();
+        String name = material.name();
+        if (Tag.LOGS.isTagged(material) || Tag.PLANKS.isTagged(material) || Tag.WOODEN_BUTTONS.isTagged(material)
+                || Tag.WOODEN_DOORS.isTagged(material) || Tag.WOODEN_FENCES.isTagged(material)
+                || Tag.WOODEN_SLABS.isTagged(material) || Tag.WOODEN_STAIRS.isTagged(material)
+                || Tag.WOODEN_TRAPDOORS.isTagged(material) || name.endsWith("_WOOD")) {
+            return Sound.BLOCK_WOOD_HIT;
+        }
+        if (name.contains("STONE") || name.contains("DEEPSLATE") || name.contains("COBBLESTONE")
+                || name.contains("GRANITE") || name.contains("DIORITE") || name.contains("ANDESITE")
+                || name.contains("TUFF") || name.contains("CALCITE") || name.contains("DRIPSTONE")
+                || name.contains("OBSIDIAN") || name.contains("BASALT")) {
+            return Sound.BLOCK_STONE_HIT;
+        }
+        if (Tag.DIRT.isTagged(material) || material == Material.GRASS_BLOCK || material == Material.SAND
+                || material == Material.GRAVEL || material == Material.CLAY || material == Material.FARMLAND) {
+            return Sound.BLOCK_GRAVEL_HIT;
+        }
+        if (Tag.WOOL.isTagged(material)) {
+            return Sound.BLOCK_WOOL_HIT;
+        }
+        if (name.contains("GLASS")) {
+            return Sound.BLOCK_GLASS_HIT;
+        }
+        if (name.contains("METAL") || name.contains("IRON") || name.contains("COPPER")
+                || name.contains("GOLD") || name.contains("NETHERITE") || name.contains("CHAIN")
+                || name.contains("ANVIL") || name.contains("HOPPER") || name.contains("PISTON")) {
+            return Sound.BLOCK_METAL_HIT;
+        }
+        return Sound.BLOCK_STONE_HIT;
     }
 
     private void applyDisguiseState(@NotNull Location location, @NotNull CustomBlockTemplate template) {

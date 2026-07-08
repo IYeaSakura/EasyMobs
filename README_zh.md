@@ -47,6 +47,7 @@
 - **生态系统** —— 按生物群系绑定自定义怪物，支持权重化生成规则、群体大小、密度限制、环境粒子与环境音效。
 - **世界规则** —— 按世界控制全局游戏规则、死亡行为、PVP、伤害与饥饿倍率。
 - **事件链** —— 编排多阶段世界事件，支持延迟动作、条件判断与成功/失败分支。
+- **自定义方块** —— 放置带伪装状态、自定义硬度（基于击打次数并同步客户端破坏动画）、自定义掉落与右键交互的方块。
 
 ### 运维特性
 - 通过 `/genesis reload` 在游戏内热重载所有 YAML 配置。
@@ -508,6 +509,47 @@ corrupted_forest:
       interval: 40
 ```
 
+### 自定义方块
+
+创建 `plugins/AeternumGenesis/blocks/example_blocks.yml`：
+
+```yaml
+blood_altar:
+  material: STONE
+  display_name: "&cBlood Altar"
+  show_name_tag: true
+  disguise:
+    type: note_block
+    instrument: piano
+    note: 12
+  hardness: 8
+  cancel_physics: true
+  cancel_piston: true
+  can_break:
+    tool_type: PICKAXE
+    required_tool_material: IRON
+  drops:
+    - item: blood_shard
+      amount: "2-4"
+      chance: 100
+  on_interact:
+    - type: message
+      message: "&cThe altar pulses with dark energy..."
+    - type: sound
+      sound: BLOCK_BEACON_AMBIENT
+      volume: 1.0
+      pitch: 0.8
+```
+
+**硬度与破坏动画**
+
+- `hardness` 设置破坏方块所需的击打次数。
+- 每次击打都会为附近所有玩家更新原版方块裂纹动画。
+- 破坏时会产生与材料匹配的击打音效与方块粒子。
+- 进度在所有击打该方块的玩家之间共享，多名玩家可协作破坏。
+- 当玩家停止挖掘（`BlockDamageAbortEvent`）时，裂纹动画会重置。
+- 计数器在方块被破坏或移除时自动重置。
+
 ### 世界规则
 
 创建 `plugins/AeternumGenesis/worlds/world_rules.yml`：
@@ -546,20 +588,51 @@ blood_moon:
           message: "&c&l血月正在升起..."
     spawn_wave:
       delay: 600
+      condition: "player_count_online > 1"
       actions:
         spawn:
           type: spawn_around_players
           mob: blood_zombie
           count: 20
           radius: 50
+    boss_stage:
+      delay: 1200
+      condition: "and(mob_count_in_radius(50) < 5, time == night)"
+      actions:
+        spawn_boss:
+          type: spawn_boss
+          mob: blood_moon_beast
+          key: main
   on_end:
-    condition: boss_defeated
+    condition: "boss_defeated(main)"
+    timeout_ticks: 24000
     success_actions:
       reward:
         type: reward_all
         item: blood_bottle
         amount: 1
+    fail_actions:
+      broadcast:
+        type: broadcast
+        message: "&c血月在未被击败的情况下渐渐消退..."
 ```
+
+**条件语法**
+
+事件链条件支持比较运算、逻辑运算符、时间关键字与 Boss 状态查询：
+
+| 表达式 | 含义 |
+|--------|------|
+| `boss_defeated` / `boss_alive` | 任意已注册 Boss 死亡 / 存活时为真。 |
+| `boss_defeated(main)` / `boss_alive(main)` | 按 key 查询 Boss 状态，key 需与 `spawn_boss` 动作的 `key` 一致。 |
+| `player_count_online > 5` | 在线玩家数量比较。 |
+| `time == night` / `time == day` | 时间段关键字判断。还支持 `dawn`、`dusk`、`noon`、`midnight`。 |
+| `time > 13000` | 原始世界刻比较。 |
+| `elapsed_ticks >= 600` | 事件开始以来的刻数。 |
+| `mob_count_in_radius(30) < 10` | 发起者周围指定半径内的非玩家生物数量。 |
+| `and(a, b)` / `or(a, b)` / `not(a)` | 布尔逻辑，可嵌套。 |
+
+`condition` 留空或省略时该阶段将始终执行。
 
 ### 爆炸地形控制
 

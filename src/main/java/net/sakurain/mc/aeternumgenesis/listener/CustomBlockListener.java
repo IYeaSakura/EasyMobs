@@ -85,7 +85,6 @@ public class CustomBlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockDamageAbort(BlockDamageAbortEvent event) {
         plugin.getBlockManager().resetBlockDamage(event.getBlock().getLocation());
-        event.getPlayer().sendBlockDamage(event.getBlock().getLocation(), 0.0f);
     }
 
     private void handleBreak(@NotNull Block block, @Nullable Player player, @Nullable org.bukkit.event.Cancellable cancellable) {

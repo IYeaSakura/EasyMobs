@@ -47,6 +47,7 @@ A lightweight, YAML-driven custom mob and item plugin for **PaperMC 26.1.2**, in
 - **Ecosystems** — Bind custom mobs to biomes with weighted spawn rules, group sizes, density limits, ambient particles, and ambient sounds.
 - **World Rules** — Control global game rules, death behavior, PvP, and damage/hunger multipliers per world.
 - **Event Chains** — Orchestrate multi-stage world events with delayed actions, conditions, and success/failure branches.
+- **Custom Blocks** — Place blocks with disguise states, custom hardness (hit-based breaking with synced client animation), custom drops, and right-click interactions.
 
 ### Operational Features
 - Hot-reload all YAML configs in-game with `/genesis reload`.
@@ -508,6 +509,47 @@ corrupted_forest:
       interval: 40
 ```
 
+### Custom Blocks
+
+Create `plugins/AeternumGenesis/blocks/example_blocks.yml`:
+
+```yaml
+blood_altar:
+  material: STONE
+  display_name: "&cBlood Altar"
+  show_name_tag: true
+  disguise:
+    type: note_block
+    instrument: piano
+    note: 12
+  hardness: 8
+  cancel_physics: true
+  cancel_piston: true
+  can_break:
+    tool_type: PICKAXE
+    required_tool_material: IRON
+  drops:
+    - item: blood_shard
+      amount: "2-4"
+      chance: 100
+  on_interact:
+    - type: message
+      message: "&cThe altar pulses with dark energy..."
+    - type: sound
+      sound: BLOCK_BEACON_AMBIENT
+      volume: 1.0
+      pitch: 0.8
+```
+
+**Hardness & breaking animation**
+
+- `hardness` sets the number of hits required to break the block.
+- Each hit updates the vanilla block-crack animation for every nearby player.
+- Breaking produces material-matched hit sounds and block particles.
+- Progress is shared across all players hitting the block, so multiple players can cooperate.
+- If a player stops mining (`BlockDamageAbortEvent`), the crack animation is reset.
+- The counter resets automatically when the block breaks or is removed.
+
 ### World Rules
 
 Create `plugins/AeternumGenesis/worlds/world_rules.yml`:
@@ -546,20 +588,51 @@ blood_moon:
           message: "&c&lThe blood moon is rising..."
     spawn_wave:
       delay: 600
+      condition: "player_count_online > 1"
       actions:
         spawn:
           type: spawn_around_players
           mob: blood_zombie
           count: 20
           radius: 50
+    boss_stage:
+      delay: 1200
+      condition: "and(mob_count_in_radius(50) < 5, time == night)"
+      actions:
+        spawn_boss:
+          type: spawn_boss
+          mob: blood_moon_beast
+          key: main
   on_end:
-    condition: boss_defeated
+    condition: "boss_defeated(main)"
+    timeout_ticks: 24000
     success_actions:
       reward:
         type: reward_all
         item: blood_bottle
         amount: 1
+    fail_actions:
+      broadcast:
+        type: broadcast
+        message: "&cThe blood moon fades undefeated..."
 ```
+
+**Condition syntax**
+
+Event-chain conditions support comparisons, logical operators, time keywords and boss state lookups:
+
+| Expression | Meaning |
+|------------|---------|
+| `boss_defeated` / `boss_alive` | True if any registered boss is dead / alive. |
+| `boss_defeated(main)` / `boss_alive(main)` | Per-key boss state. The key must match a `spawn_boss` action's `key`. |
+| `player_count_online > 5` | Online player count comparison. |
+| `time == night` / `time == day` | Time-of-day keyword check. Also supports `dawn`, `dusk`, `noon`, `midnight`. |
+| `time > 13000` | Raw world tick comparison. |
+| `elapsed_ticks >= 600` | Time since the event started, in ticks. |
+| `mob_count_in_radius(30) < 10` | Living (non-player) entities within the given radius of the initiator. |
+| `and(a, b)` / `or(a, b)` / `not(a)` | Boolean logic. Can be nested. |
+
+Use blank or omitted `condition` to make a stage always run.
 
 ### Explosion Terrain Control
 
