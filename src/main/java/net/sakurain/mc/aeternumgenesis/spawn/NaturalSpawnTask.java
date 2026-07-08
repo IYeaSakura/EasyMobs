@@ -17,7 +17,6 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -26,11 +25,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class NaturalSpawnTask implements Runnable {
 
     private final AeternumGenesisPlugin plugin;
-    private final Random random;
 
     public NaturalSpawnTask() {
         this.plugin = AeternumGenesisPlugin.getInstance();
-        this.random = ThreadLocalRandom.current();
     }
 
     @Override
@@ -108,7 +105,7 @@ public class NaturalSpawnTask implements Runnable {
 
     private boolean spawnFromRule(Location playerLoc, World world, SpawnRule rule, CustomMobManager mobManager,
                                   int minDistance, int maxDistance, int maxAttempts) {
-        if (Math.random() > rule.getChance()) {
+        if (ThreadLocalRandom.current().nextDouble() > rule.getChance()) {
             return false;
         }
         Location point = selectSpawnPoint(world, playerLoc, rule.getPositionType(), minDistance, maxDistance, maxAttempts);
@@ -150,7 +147,7 @@ public class NaturalSpawnTask implements Runnable {
         if (totalWeight <= 0) {
             return null;
         }
-        int roll = random.nextInt(totalWeight);
+        int roll = ThreadLocalRandom.current().nextInt(totalWeight);
         int current = 0;
         for (EcosystemTemplate.SpawnEntry entry : entries) {
             current += entry.weight();
@@ -170,7 +167,7 @@ public class NaturalSpawnTask implements Runnable {
                 String[] parts = value.split("-");
                 int min = Integer.parseInt(parts[0].trim());
                 int max = Integer.parseInt(parts[1].trim());
-                return min + random.nextInt(Math.max(1, max - min + 1));
+                return min + ThreadLocalRandom.current().nextInt(Math.max(1, max - min + 1));
             }
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
@@ -194,8 +191,8 @@ public class NaturalSpawnTask implements Runnable {
     private Location selectSpawnPoint(World world, Location center, SpawnRule.PositionType type,
                                       int minDistance, int maxDistance, int maxAttempts) {
         for (int attempt = 0; attempt < maxAttempts; attempt++) {
-            double angle = random.nextDouble() * 2 * Math.PI;
-            double distance = minDistance + random.nextDouble() * (maxDistance - minDistance);
+            double angle = ThreadLocalRandom.current().nextDouble() * 2 * Math.PI;
+            double distance = minDistance + ThreadLocalRandom.current().nextDouble() * (maxDistance - minDistance);
             int x = center.getBlockX() + (int) (Math.cos(angle) * distance);
             int z = center.getBlockZ() + (int) (Math.sin(angle) * distance);
             int chunkX = x >> 4;
@@ -216,11 +213,11 @@ public class NaturalSpawnTask implements Runnable {
                     yield new Location(world, x + 0.5, seaY + 1, z + 0.5);
                 }
                 case AIR -> {
-                    int airY = surfaceY + 5 + random.nextInt(15);
+                    int airY = surfaceY + 5 + ThreadLocalRandom.current().nextInt(15);
                     yield new Location(world, x + 0.5, airY, z + 0.5);
                 }
                 case UNDERGROUND -> {
-                    int undergroundY = 11 + random.nextInt(40);
+                    int undergroundY = 11 + ThreadLocalRandom.current().nextInt(40);
                     yield new Location(world, x + 0.5, undergroundY, z + 0.5);
                 }
                 case null, default -> new Location(world, x + 0.5, surfaceY + 1, z + 0.5);

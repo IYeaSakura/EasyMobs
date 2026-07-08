@@ -169,8 +169,8 @@ public class MobAPIImpl implements MobAPI {
     @Override
     public void removeCustomTag(@NotNull LivingEntity entity) {
         PersistentDataContainer pdc = entity.getPersistentDataContainer();
-        pdc.remove(new org.bukkit.NamespacedKey(plugin, "genesis_mob_id"));
-        pdc.remove(new org.bukkit.NamespacedKey(plugin, "genesis_level"));
+        pdc.remove(MobTracker.getMobIdKey());
+        pdc.remove(LevelSystem.getMobLevelKey());
     }
 
     @Override
@@ -190,7 +190,7 @@ public class MobAPIImpl implements MobAPI {
     @Override
     public int getMobLevel(@NotNull LivingEntity entity) {
         Integer level = entity.getPersistentDataContainer().get(
-                new org.bukkit.NamespacedKey(plugin, "genesis_level"), PersistentDataType.INTEGER);
+                LevelSystem.getMobLevelKey(), PersistentDataType.INTEGER);
         return level != null ? level : 1;
     }
 

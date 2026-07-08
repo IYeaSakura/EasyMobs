@@ -47,13 +47,14 @@ public class DashEffect extends AbstractSkillEffect {
         Set<LivingEntity> hit = new HashSet<>();
         Location current = start.clone();
         double step = 0.5;
+        Vector stepVector = direction.clone().multiply(step);
         double traveled = 0;
 
         while (traveled < distance) {
-            current.add(direction.clone().multiply(step));
+            current.add(stepVector);
             traveled += step;
             if (stopOnBlock && !current.getBlock().isPassable()) {
-                current.subtract(direction.clone().multiply(step));
+                current.subtract(stepVector);
                 break;
             }
             spawnDashParticle(current);

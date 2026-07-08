@@ -21,6 +21,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Handles REPLACE and DENY natural spawn rules via {@link CreatureSpawnEvent}.
@@ -64,7 +65,7 @@ public class CreatureSpawnListener implements Listener {
             if (!testConditions(rule, loc, originalType)) {
                 continue;
             }
-            if (Math.random() > rule.getChance()) {
+            if (ThreadLocalRandom.current().nextDouble() > rule.getChance()) {
                 continue;
             }
             event.setCancelled(true);
@@ -82,7 +83,7 @@ public class CreatureSpawnListener implements Listener {
             if (!testConditions(rule, loc, originalType)) {
                 continue;
             }
-            if (Math.random() > rule.getChance()) {
+            if (ThreadLocalRandom.current().nextDouble() > rule.getChance()) {
                 continue;
             }
             if (!checkDensity(rule, loc)) {

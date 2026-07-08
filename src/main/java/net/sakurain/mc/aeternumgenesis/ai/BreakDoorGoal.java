@@ -15,6 +15,7 @@ import org.bukkit.entity.Mob;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumSet;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class BreakDoorGoal extends CustomAIController.BaseGoal {
 
@@ -35,7 +36,7 @@ public class BreakDoorGoal extends CustomAIController.BaseGoal {
     @Override
     public boolean shouldActivate() {
         if (config == null || !config.enabled()) return false;
-        if (Math.random() > config.chance()) return false;
+        if (ThreadLocalRandom.current().nextDouble() > config.chance()) return false;
         LivingEntity target = mob.getTarget();
         if (target == null) return false;
         Location eye = mob.getEyeLocation();

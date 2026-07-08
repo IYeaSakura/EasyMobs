@@ -1,5 +1,6 @@
 package net.sakurain.mc.aeternumgenesis.skill.effect;
 
+import net.sakurain.mc.aeternumgenesis.AeternumGenesisPlugin;
 import net.sakurain.mc.aeternumgenesis.skill.SkillContext;
 import net.sakurain.mc.aeternumgenesis.skill.TargetType;
 import org.bukkit.Location;
@@ -74,7 +75,8 @@ public abstract class AbstractSkillEffect implements SkillEffect {
         if (!loc.isEmpty()) {
             try {
                 return context.resolveLocation(TargetType.fromString(loc), number("radius", 3.0));
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                AeternumGenesisPlugin.getInstance().getLogger().fine("Failed to resolve location '" + loc + "' for skill effect " + type + ": " + e.getMessage());
             }
         }
         return context.getOrigin() != null ? context.getOrigin() : context.getCaster().getLocation();

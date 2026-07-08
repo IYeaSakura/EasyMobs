@@ -40,14 +40,15 @@ public final class EventConditionEvaluator {
 
     private boolean evaluateExpression(String expr, EventChainInstance instance) {
         expr = expr.trim();
+        System.out.println("EVAL: '" + expr + "'");
         if (expr.startsWith("and(")) {
-            return evaluateLogical(expr.substring(3), instance, true);
+            return evaluateLogical(expr.substring(4), instance, true);
         }
         if (expr.startsWith("or(")) {
-            return evaluateLogical(expr.substring(2), instance, false);
+            return evaluateLogical(expr.substring(3), instance, false);
         }
         if (expr.startsWith("not(")) {
-            String inner = extractParenthesized(expr.substring(3));
+            String inner = extractParenthesized(expr.substring(4));
             return !evaluateExpression(inner, instance);
         }
         if (expr.startsWith("(")) {
@@ -87,6 +88,7 @@ public final class EventConditionEvaluator {
 
     private boolean evaluateLogical(String remainder, EventChainInstance instance, boolean isAnd) {
         String content = extractParenthesized(remainder);
+        System.out.println("LOGICAL content: '" + content + "'");
         List<String> parts = splitTopLevel(content, ',');
         for (String part : parts) {
             boolean result = evaluateExpression(part, instance);

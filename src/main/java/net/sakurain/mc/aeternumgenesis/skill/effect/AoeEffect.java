@@ -56,7 +56,7 @@ public class AoeEffect extends AbstractSkillEffect {
                 }
                 entity.setHealth(Math.min(maxHealth, entity.getHealth() + amount));
             }
-            if (knockback > 0 && entity.getLocation().getWorld().equals(world)) {
+            if (knockback > 0 && world.equals(entity.getLocation().getWorld())) {
                 Vector kb = entity.getLocation().toVector().subtract(center.toVector()).normalize();
                 kb.setY(0.4);
                 entity.setVelocity(entity.getVelocity().add(kb.multiply(knockback)));

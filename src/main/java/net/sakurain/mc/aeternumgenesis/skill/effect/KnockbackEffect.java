@@ -6,6 +6,8 @@ import org.bukkit.util.Vector;
 
 public class KnockbackEffect extends AbstractSkillEffect {
 
+    private static final double EPSILON = 1e-9;
+
     public KnockbackEffect() {
         super("knockback");
     }
@@ -28,7 +30,7 @@ public class KnockbackEffect extends AbstractSkillEffect {
             direction = target.getLocation().getDirection().multiply(-1);
         }
 
-        if (direction.lengthSquared() == 0) {
+        if (direction.lengthSquared() < EPSILON) {
             direction = new Vector(1, 0, 0);
         }
         direction.setY(0).normalize();

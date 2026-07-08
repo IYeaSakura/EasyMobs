@@ -4,6 +4,8 @@ import net.sakurain.mc.aeternumgenesis.spawn.SpawnCondition;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class RandomChanceCondition implements SpawnCondition {
 
     private double chance = 1.0;
@@ -24,6 +26,6 @@ public class RandomChanceCondition implements SpawnCondition {
 
     @Override
     public boolean test(Location location, EntityType originalType) {
-        return Math.random() < chance;
+        return ThreadLocalRandom.current().nextDouble() < chance;
     }
 }

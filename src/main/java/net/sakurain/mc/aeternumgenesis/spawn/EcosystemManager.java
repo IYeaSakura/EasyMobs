@@ -30,7 +30,6 @@ public final class EcosystemManager {
 
     private final AeternumGenesisPlugin plugin;
     private final Map<String, EcosystemTemplate> templates = new ConcurrentHashMap<>();
-    private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private BukkitTask ambientTask;
     private long tickCounter = 0;
 
@@ -117,7 +116,7 @@ public final class EcosystemManager {
             if (tickCounter % sound.interval() != 0) {
                 continue;
             }
-            if (random.nextDouble() > sound.chance()) {
+            if (ThreadLocalRandom.current().nextDouble() > sound.chance()) {
                 continue;
             }
             for (Player player : Bukkit.getOnlinePlayers()) {

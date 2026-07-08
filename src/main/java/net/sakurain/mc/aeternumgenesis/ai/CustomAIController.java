@@ -197,7 +197,7 @@ public class CustomAIController {
                 AggroTable aggro = aggroTables.get(mob.getUniqueId());
                 score = aggro != null ? aggro.getThreat(target.getUniqueId()) : 0;
             }
-            case "random" -> score = Math.random();
+            case "random" -> score = ThreadLocalRandom.current().nextDouble();
             case "first_sight" -> score = 1.0;
             default -> score = 1.0 / (dist + 1);
         }

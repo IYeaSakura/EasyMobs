@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 
 public final class CustomBlockManager {
@@ -245,7 +246,7 @@ public final class CustomBlockManager {
         }
         Location center = location.clone().add(0.5, 0.5, 0.5);
         Sound sound = resolveHitSound(template);
-        world.playSound(center, sound, org.bukkit.SoundCategory.BLOCKS, 1.0f, 0.9f + (float) Math.random() * 0.2f);
+        world.playSound(center, sound, org.bukkit.SoundCategory.BLOCKS, 1.0f, 0.9f + ThreadLocalRandom.current().nextFloat() * 0.2f);
         world.spawnParticle(Particle.BLOCK, center, 6, 0.3, 0.3, 0.3, location.getBlock().getBlockData());
     }
 
@@ -392,9 +393,13 @@ public final class CustomBlockManager {
         if (!template.isShowNameTag()) {
             return;
         }
+        World world = location.getWorld();
+        if (world == null) {
+            return;
+        }
         removeHologram(location);
         Location spawnLoc = location.clone().add(0.5, 0.25, 0.5);
-        ArmorStand stand = location.getWorld().spawn(spawnLoc, ArmorStand.class, s -> {
+        ArmorStand stand = world.spawn(spawnLoc, ArmorStand.class, s -> {
             s.setMarker(true);
             s.setInvisible(true);
             s.setInvulnerable(true);

@@ -396,6 +396,9 @@ public final class MobTracker {
     }
 
     private void seekSurface(Mob mob, Location loc, boolean feetInWater, CustomMobTemplate.WaterBehaviorConfig water) {
+        if (loc.getWorld() == null) {
+            return;
+        }
         double headY = loc.getY() + mob.getHeight() * 0.85;
         org.bukkit.block.Block headBlock = loc.getWorld().getBlockAt((int) Math.floor(loc.getX()), (int) Math.floor(headY), (int) Math.floor(loc.getZ()));
         org.bukkit.block.Block blockAbove = headBlock.getRelative(org.bukkit.block.BlockFace.UP);

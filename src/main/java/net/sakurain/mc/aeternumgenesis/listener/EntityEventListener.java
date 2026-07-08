@@ -23,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class EntityEventListener implements Listener {
 
@@ -140,7 +141,7 @@ public class EntityEventListener implements Listener {
     private List<ItemStack> resolveDrops(CustomMobTemplate.DropsConfig drops) {
         List<ItemStack> result = new ArrayList<>();
         for (CustomMobTemplate.DropEntry entry : drops.items()) {
-            if (Math.random() * 100.0 > entry.chance()) continue;
+            if (ThreadLocalRandom.current().nextDouble(100.0) > entry.chance()) continue;
             ItemStack item = resolveItem(entry.item(), entry.amount());
             if (item != null) result.add(item);
         }

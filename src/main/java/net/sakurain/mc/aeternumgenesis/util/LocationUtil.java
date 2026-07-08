@@ -4,11 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public final class LocationUtil {
 
-    private static final Random RANDOM = new Random();
+    private static final double EPSILON = 1e-9;
 
     private LocationUtil() {
     }
@@ -17,8 +17,8 @@ public final class LocationUtil {
         if (minRadius < 0) minRadius = 0;
         if (maxRadius < minRadius) maxRadius = minRadius;
 
-        double angle = RANDOM.nextDouble() * 2 * Math.PI;
-        double distance = minRadius + RANDOM.nextDouble() * (maxRadius - minRadius);
+        double angle = ThreadLocalRandom.current().nextDouble() * 2 * Math.PI;
+        double distance = minRadius + ThreadLocalRandom.current().nextDouble() * (maxRadius - minRadius);
 
         double x = center.getX() + Math.cos(angle) * distance;
         double z = center.getZ() + Math.sin(angle) * distance;
@@ -44,7 +44,7 @@ public final class LocationUtil {
 
     public static Location awayFrom(Location source, Location from, double distance) {
         Vector direction = source.toVector().subtract(from.toVector()).normalize();
-        if (direction.lengthSquared() == 0) {
+        if (direction.lengthSquared() < EPSILON) {
             direction = new Vector(1, 0, 0);
         }
         return source.clone().add(direction.multiply(distance));

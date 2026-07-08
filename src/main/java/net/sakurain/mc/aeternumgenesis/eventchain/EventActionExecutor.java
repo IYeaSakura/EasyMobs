@@ -36,7 +36,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class EventActionExecutor {
 
     private final AeternumGenesisPlugin plugin;
-    private final ThreadLocalRandom random = ThreadLocalRandom.current();
 
     public EventActionExecutor(AeternumGenesisPlugin plugin) {
         this.plugin = plugin;
@@ -149,7 +148,8 @@ public final class EventActionExecutor {
         if (stored instanceof String uuidString) {
             try {
                 plugin.getAtmosphereManager().removeAtmosphere(UUID.fromString(uuidString));
-            } catch (IllegalArgumentException ignored) {
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().warning("Invalid atmosphere UUID in event chain context: " + uuidString);
             }
         }
     }
@@ -386,7 +386,10 @@ public final class EventActionExecutor {
                 World world = resolveWorld(params, instance);
                 yield world != null ? world.getSpawnLocation() : null;
             }
-            default -> resolveWorld(params, instance) != null ? resolveWorld(params, instance).getSpawnLocation() : null;
+            default -> {
+                World world = resolveWorld(params, instance);
+                yield world != null ? world.getSpawnLocation() : null;
+            }
         };
     }
 
@@ -412,8 +415,8 @@ public final class EventActionExecutor {
             return null;
         }
         for (int attempt = 0; attempt < 10; attempt++) {
-            double angle = random.nextDouble() * 2 * Math.PI;
-            double distance = minDistance + random.nextDouble() * (maxDistance - minDistance);
+            double angle = ThreadLocalRandom.current().nextDouble() * 2 * Math.PI;
+            double distance = minDistance + ThreadLocalRandom.current().nextDouble() * (maxDistance - minDistance);
             int x = center.getBlockX() + (int) (Math.cos(angle) * distance);
             int z = center.getBlockZ() + (int) (Math.sin(angle) * distance);
             if (!world.isChunkLoaded(x >> 4, z >> 4)) {

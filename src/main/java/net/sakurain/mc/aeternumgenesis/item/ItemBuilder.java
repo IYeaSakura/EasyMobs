@@ -165,8 +165,9 @@ public final class ItemBuilder {
         if (template.getMaxStackSize() != null) {
             try {
                 meta.setMaxStackSize(Math.max(1, Math.min(99, template.getMaxStackSize())));
-            } catch (NoSuchMethodError ignored) {
+            } catch (NoSuchMethodError e) {
                 // Fallback for older Paper builds without ItemMeta#setMaxStackSize.
+                AeternumGenesisPlugin.getInstance().getLogger().fine("ItemMeta#setMaxStackSize not available on this server: " + e.getMessage());
             }
         }
 

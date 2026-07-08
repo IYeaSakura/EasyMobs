@@ -38,7 +38,6 @@ public final class EventChainManager implements Listener {
     private final Map<String, Long> lastTriggerTicks = new ConcurrentHashMap<>();
     private final EventActionExecutor actionExecutor;
     private final EventConditionEvaluator conditionEvaluator;
-    private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private BukkitTask triggerTask;
     private BukkitTask endCheckTask;
 
@@ -207,7 +206,7 @@ public final class EventChainManager implements Listener {
                     && !isAnyWorldDay()) {
                 continue;
             }
-            if (random.nextDouble() > trigger.chance()) {
+            if (ThreadLocalRandom.current().nextDouble() > trigger.chance()) {
                 continue;
             }
             lastTriggerTicks.put(template.id(), currentTick);
@@ -352,7 +351,8 @@ public final class EventChainManager implements Listener {
             if (entry.getKey().startsWith("atmosphere_") && entry.getValue() instanceof String uuidString) {
                 try {
                     plugin.getAtmosphereManager().removeAtmosphere(UUID.fromString(uuidString));
-                } catch (IllegalArgumentException ignored) {
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Invalid atmosphere UUID during cleanup: " + uuidString);
                 }
             }
         }

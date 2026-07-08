@@ -52,7 +52,6 @@ public final class AtmosphereManager {
     private final Map<UUID, BossBar> playerBossBars = new ConcurrentHashMap<>();
     private final Set<World> activeWorlds = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private final Map<World, Object> originalGameRules = new ConcurrentHashMap<>();
-    private final ThreadLocalRandom random = ThreadLocalRandom.current();
 
     private BukkitTask tickTask;
     private BukkitTask modifierTask;
@@ -418,7 +417,7 @@ public final class AtmosphereManager {
                 if (layer.interval() <= 0 || tickCounter % layer.interval() != 0) {
                     continue;
                 }
-                if (random.nextDouble() > layer.chance()) {
+                if (ThreadLocalRandom.current().nextDouble() > layer.chance()) {
                     continue;
                 }
                 Location center = atmosphere.getCenter();

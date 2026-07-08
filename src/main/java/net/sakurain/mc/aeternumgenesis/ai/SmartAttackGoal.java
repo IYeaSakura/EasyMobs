@@ -12,6 +12,7 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumSet;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class SmartAttackGoal extends CustomAIController.BaseGoal {
 
@@ -67,7 +68,7 @@ public class SmartAttackGoal extends CustomAIController.BaseGoal {
         Location targetLoc = target.getLocation();
         Vector toTarget = targetLoc.toVector().subtract(mobLoc.toVector()).normalize();
         Vector perpendicular = new Vector(-toTarget.getZ(), 0, toTarget.getX()).normalize();
-        if (Math.random() > 0.5) perpendicular.multiply(-1);
+        if (ThreadLocalRandom.current().nextBoolean()) perpendicular.multiply(-1);
         Location strafeLoc = mobLoc.clone().add(perpendicular.multiply(2));
         mob.getPathfinder().moveTo(strafeLoc, 0.8);
     }
