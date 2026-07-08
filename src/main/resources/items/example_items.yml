@@ -1,5 +1,5 @@
-# EasyMobs Example Item Templates
-# Place files in plugins/EasyMobs/items/ (supports subdirectories)
+# AeternumGenesis Example Item Templates
+# Place files in plugins/AeternumGenesis/items/ (supports subdirectories)
 
 blood_moon_sword:
   material: NETHERITE_SWORD

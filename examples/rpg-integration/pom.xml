@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.sakurain.mc.easymobs.examples</groupId>
+    <groupId>net.sakurain.mc.aeternumgenesis.examples</groupId>
     <artifactId>rpg-integration</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>EasyMobs RPG Integration Example</name>
-    <description>Demonstrates how an external plugin customizes EasyMobs content at runtime.</description>
+    <name>AeternumGenesis RPG Integration Example</name>
+    <description>Demonstrates how an external plugin customizes AeternumGenesis content at runtime.</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -34,10 +34,10 @@
         </dependency>
         <dependency>
             <groupId>net.sakurain.mc</groupId>
-            <artifactId>easymobs</artifactId>
+            <artifactId>aeternumgenesis</artifactId>
             <version>1.0.0-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../../target/easymobs-1.0.0-SNAPSHOT.jar</systemPath>
+            <systemPath>${project.basedir}/../../target/aeternumgenesis-1.0.0-SNAPSHOT.jar</systemPath>
         </dependency>
     </dependencies>
 

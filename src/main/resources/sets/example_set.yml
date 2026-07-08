@@ -1,5 +1,5 @@
-# EasyMobs Example Item Set
-# Place files in plugins/EasyMobs/sets/ (supports subdirectories)
+# AeternumGenesis Example Item Set
+# Place files in plugins/AeternumGenesis/sets/ (supports subdirectories)
 
 mirror_flower:
   name: "&bMirror Flower Set"

@@ -1,5 +1,5 @@
-# EasyMobs Example Mob Templates
-# Place files in plugins/EasyMobs/mobs/ (supports subdirectories)
+# AeternumGenesis Example Mob Templates
+# Place files in plugins/AeternumGenesis/mobs/ (supports subdirectories)
 
 blood_zombie:
   type: ZOMBIE
@@ -119,7 +119,7 @@ blood_zombie:
       - item: bone
         amount: "1-2"
         chance: 0.5
-      - item: "ezmobs:blood_moon_sword"
+      - item: "genesis:blood_moon_sword"
         amount: 1
         chance: 0.05
     experience: 15

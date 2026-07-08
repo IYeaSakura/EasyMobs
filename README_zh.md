@@ -1,10 +1,10 @@
-# EasyMobs
+# AeternumGenesis
 
 [![PaperMC](https://img.shields.io/badge/PaperMC-26.1.2-blue.svg)](https://papermc.io/)
 [![Java](https://img.shields.io/badge/Java-25%2B-orange.svg)](https://adoptium.net/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> 一款受 MythicMobs 启发的、基于 YAML 配置的轻量级 **PaperMC 26.1.2** 自定义怪物与物品插件。EasyMobs 让服主无需编写代码或接触 NMS，即可创建自定义怪物、装备、技能、生成规则以及物品套装。
+> 一款受 MythicMobs 启发的、基于 YAML 配置的轻量级 **PaperMC 26.1.2** 自定义怪物与物品插件。AeternumGenesis 让服主无需编写代码或接触 NMS，即可创建自定义怪物、装备、技能、生成规则以及物品套装。
 
 ---
 
@@ -38,7 +38,7 @@
 - **自然生成控制** —— REPLACE（替换）、ADD（追加）、DENY（阻止）三种生成规则，支持时间、天气、生物群系、光照、Y 轴、月相和密度条件。
 - **物品套装** —— 当玩家装备完整套装时触发额外效果。
 - **公开 API** —— 稳定的 API，通过 Bukkit 事件供其他插件接入，并支持注册自定义效果与条件。
-- **热重载** —— 游戏内使用 `/ezmobs reload` 即可重载所有配置。
+- **热重载** —— 游戏内使用 `/genesis reload` 即可重载所有配置。
 - **零 NMS** —— 完全基于 Bukkit/Paper API 构建，兼容性高、易于维护。
 
 ---
@@ -59,24 +59,24 @@
 <a id="安装"></a>
 ## 安装
 
-1. 从 [Releases](../../releases) 下载最新的 `EasyMobs-*.jar`。
+1. 从 [Releases](../../releases) 下载最新的 `AeternumGenesis-*.jar`。
 2. 将 jar 文件放入服务器的 `plugins/` 文件夹。
 3. 启动服务器一次，插件会自动生成默认配置文件夹。
-4. 编辑 `plugins/EasyMobs/` 下的 YAML 文件，自定义物品、怪物、技能、生成规则和套装。
-5. 执行 `/ezmobs reload` 或重启服务器。
+4. 编辑 `plugins/AeternumGenesis/` 下的 YAML 文件，自定义物品、怪物、技能、生成规则和套装。
+5. 执行 `/genesis reload` 或重启服务器。
 
 ### 从源码构建
 
 ```bash
 # 克隆仓库
-git clone https://github.com/IYeaSakura/EasyMobs.git
-cd EasyMobs
+git clone https://github.com/IYeaSakura/AeternumGenesis.git
+cd AeternumGenesis
 
 # 使用 Maven 构建
 mvn clean package
 
 # 输出文件：
-# target/EasyMobs-1.0.0-SNAPSHOT.jar
+# target/AeternumGenesis-1.0.0-SNAPSHOT.jar
 ```
 
 ---
@@ -86,7 +86,7 @@ mvn clean package
 
 ### 1. 创建自定义物品
 
-创建文件 `plugins/EasyMobs/items/my_items.yml`：
+创建文件 `plugins/AeternumGenesis/items/my_items.yml`：
 
 ```yaml
 flaming_sword:
@@ -114,12 +114,12 @@ flaming_sword:
 给自己发放该物品：
 
 ```
-/ezmobs give flaming_sword
+/genesis give flaming_sword
 ```
 
 ### 2. 创建自定义怪物
 
-创建文件 `plugins/EasyMobs/mobs/my_mobs.yml`：
+创建文件 `plugins/AeternumGenesis/mobs/my_mobs.yml`：
 
 ```yaml
 flame_zombie:
@@ -145,7 +145,7 @@ flame_zombie:
 召唤它：
 
 ```
-/ezmobs spawn flame_zombie
+/genesis spawn flame_zombie
 ```
 
 ### 3. 绑定技能
@@ -166,10 +166,10 @@ flame_zombie:
 <a id="配置说明"></a>
 ## 配置说明
 
-所有配置文件位于 `plugins/EasyMobs/`：
+所有配置文件位于 `plugins/AeternumGenesis/`：
 
 ```
-plugins/EasyMobs/
+plugins/AeternumGenesis/
 ├── config.yml              # 主插件配置
 ├── items/                  # 物品模板 (*.yml)
 ├── mobs/                   # 怪物模板 (*.yml)
@@ -277,11 +277,11 @@ equipment:
     item: diamond_helmet
     drop_chance: 0.1
   main_hand:
-    item: ezmobs:flaming_sword
+    item: genesis:flaming_sword
     drop_chance: 0.05
 ```
 
-使用 `ezmobs:item_id` 为怪物装备自定义物品。
+使用 `genesis:item_id` 为怪物装备自定义物品。
 
 #### BossBar 示例
 
@@ -300,7 +300,7 @@ bossbar:
 <a id="技能"></a>
 ### 技能
 
-技能是可复用的模板，存放在 `plugins/EasyMobs/skills/`。
+技能是可复用的模板，存放在 `plugins/AeternumGenesis/skills/`。
 
 ```yaml
 fire_strike:
@@ -431,7 +431,7 @@ zombie_warrior_fullmoon:
 <a id="物品套装"></a>
 ### 物品套装
 
-在 `plugins/EasyMobs/sets/` 定义套装奖励：
+在 `plugins/AeternumGenesis/sets/` 定义套装奖励：
 
 ```yaml
 mirror_flower:
@@ -473,21 +473,21 @@ mirror_flower:
 
 | 指令 | 权限 | 说明 |
 |---------|------------|-------------|
-| `/ezmobs` | `easymobs.use` | 基础指令 |
-| `/ezmobs give <item-id> [player] [amount]` | `easymobs.give` | 发放自定义物品 |
-| `/ezmobs spawn <mob-id> [player\|x y z] [level]` | `easymobs.spawn` | 召唤自定义怪物 |
-| `/ezmobs reload` | `easymobs.reload` | 重载所有配置 |
-| `/ezmobs list <items\|mobs\|skills\|spawns> [page]` | `easymobs.list` | 列出已加载的模板 |
+| `/genesis` | `genesis.use` | 基础指令 |
+| `/genesis give <item-id> [player] [amount]` | `genesis.give` | 发放自定义物品 |
+| `/genesis spawn <mob-id> [player\|x y z] [level]` | `genesis.spawn` | 召唤自定义怪物 |
+| `/genesis reload` | `genesis.reload` | 重载所有配置 |
+| `/genesis list <items\|mobs\|skills\|spawns> [page]` | `genesis.list` | 列出已加载的模板 |
 
 ### 权限节点
 
 ```yaml
-easymobs.use:      default: true
-easymobs.list:     default: true
-easymobs.give:     default: op
-easymobs.spawn:    default: op
-easymobs.reload:   default: op
-easymobs.admin:    default: op   # 授予以上所有权限
+genesis.use:      default: true
+genesis.list:     default: true
+genesis.give:     default: op
+genesis.spawn:    default: op
+genesis.reload:   default: op
+genesis.admin:    default: op   # 授予以上所有权限
 ```
 
 ---
@@ -495,13 +495,13 @@ easymobs.admin:    default: op   # 授予以上所有权限
 <a id="开发者-api"></a>
 ## 开发者 API
 
-EasyMobs 通过 Bukkit 的 `ServicesManager` 暴露公开 API。
+AeternumGenesis 通过 Bukkit 的 `ServicesManager` 暴露公开 API。
 
 ### 获取 API
 
 ```java
-if (EasyMobsAPI.isAvailable()) {
-    EasyMobsAPI api = EasyMobsAPI.getInstance();
+if (AeternumGenesisAPI.isAvailable()) {
+    AeternumGenesisAPI api = AeternumGenesisAPI.getInstance();
     api.getMobAPI().spawnMob("zombie_warrior", location, 5);
 }
 ```
@@ -571,7 +571,7 @@ api.getRegistryAPI().registerCondition("has_permission", () -> new HasPermission
 
 ### 怪物/物品未加载
 - 查看控制台是否有 YAML 解析错误。
-- 确认文件路径位于 `plugins/EasyMobs/items/`、`mobs/`、`skills/`、`spawns/` 或 `sets/` 下。
+- 确认文件路径位于 `plugins/AeternumGenesis/items/`、`mobs/`、`skills/`、`spawns/` 或 `sets/` 下。
 - 确保同类型模板 ID 在所有文件中唯一。
 
 ### 生成规则不生效
@@ -596,7 +596,7 @@ Copyright (c) 2026 Yuyang.Wang
 ## 致谢
 
 - **作者：** Yuyang.Wang
-- **仓库：** [IYeaSakura/EasyMobs](https://github.com/IYeaSakura/EasyMobs)
+- **仓库：** [IYeaSakura/AeternumGenesis](https://github.com/IYeaSakura/AeternumGenesis)
 - **技术支持：** [PaperMC](https://papermc.io/)
 
 如果发现 Bug 或有功能建议，欢迎提交 [issue](../../issues) 或 pull request。

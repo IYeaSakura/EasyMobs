@@ -1,39 +1,39 @@
-name: EasyMobs
+name: AeternumGenesis
 version: '${project.version}'
-main: net.sakurain.mc.easymobs.EasyMobsPlugin
+main: net.sakurain.mc.aeternumgenesis.AeternumGenesisPlugin
 api-version: '1.21.1'
 description: Lightweight custom mob/item plugin inspired by MythicMobs
 author: Yuyang.Wang
-website: https://github.com/IYeaSakura/EasyMobs
+website: https://github.com/IYeaSakura/AeternumGenesis
 
 commands:
-  ezmobs:
-    description: EasyMobs main command
-    usage: /ezmobs <subcommand>
-    aliases: [ezm, emobs]
-    permission: easymobs.use
+  genesis:
+    description: AeternumGenesis main command
+    usage: /genesis <subcommand>
+    aliases: [gs]
+    permission: genesis.use
 
 permissions:
-  easymobs.use:
+  genesis.use:
     description: Basic usage
     default: true
-  easymobs.admin:
+  genesis.admin:
     description: Admin access
     default: op
     children:
-      easymobs.give: true
-      easymobs.spawn: true
-      easymobs.reload: true
-      easymobs.list: true
-  easymobs.give:
+      genesis.give: true
+      genesis.spawn: true
+      genesis.reload: true
+      genesis.list: true
+  genesis.give:
     description: Give custom items
     default: op
-  easymobs.spawn:
+  genesis.spawn:
     description: Spawn custom mobs
     default: op
-  easymobs.reload:
+  genesis.reload:
     description: Reload configuration
     default: op
-  easymobs.list:
+  genesis.list:
     description: List templates
     default: true

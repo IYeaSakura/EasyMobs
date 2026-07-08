@@ -1,5 +1,5 @@
-# EasyMobs Example Spawn Rules
-# Place files in plugins/EasyMobs/spawns/ (supports subdirectories)
+# AeternumGenesis Example Spawn Rules
+# Place files in plugins/AeternumGenesis/spawns/ (supports subdirectories)
 
 blood_zombie_night:
   action: REPLACE

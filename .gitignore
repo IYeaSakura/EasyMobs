@@ -30,3 +30,5 @@ terraria-mobs/
 # Local environment
 .env
 node_modules/
+
+AGENTS.md

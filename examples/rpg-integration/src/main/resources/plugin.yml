@@ -1,26 +1,26 @@
-name: EasyMobsRpgIntegration
+name: AeternumGenesisRpgIntegration
 version: ${project.version}
-main: net.sakurain.mc.easymobs.examples.rpg.RpgIntegrationPlugin
+main: net.sakurain.mc.aeternumgenesis.examples.rpg.RpgIntegrationPlugin
 api-version: '1.21.6'
-depend: [EasyMobs]
+depend: [AeternumGenesis]
 author: Sakurain
 commands:
   rpgitem:
     description: Give a runtime-registered RPG item.
     usage: /rpgitem <player> <template>
-    permission: easymobsrpg.item
+    permission: genesisrpg.item
   rpgmob:
     description: Spawn a runtime-registered RPG mob.
     usage: /rpgmob <template>
-    permission: easymobsrpg.mob
+    permission: genesisrpg.mob
   rpgskill:
     description: Trigger a runtime-registered RPG skill.
     usage: /rpgskill <skill>
-    permission: easymobsrpg.skill
+    permission: genesisrpg.skill
 permissions:
-  easymobsrpg.item:
+  genesisrpg.item:
     default: op
-  easymobsrpg.mob:
+  genesisrpg.mob:
     default: op
-  easymobsrpg.skill:
+  genesisrpg.skill:
     default: op

@@ -1,10 +1,10 @@
-# EasyMobs RPG 集成示例
+# AeternumGenesis RPG 集成示例
 
-本目录包含一个最小可运行的 Paper 插件示例，展示**外部插件**如何通过公开的 `EasyMobsAPI` 自定义 EasyMobs 的每一个部分——无需在 `plugins/EasyMobs/` 中放置任何 YAML 文件。
+本目录包含一个最小可运行的 Paper 插件示例，展示**外部插件**如何通过公开的 `AeternumGenesisAPI` 自定义 AeternumGenesis 的每一个部分——无需在 `plugins/AeternumGenesis/` 中放置任何 YAML 文件。
 
 ## 示例内容
 
-| EasyMobs 功能 | 使用的 API | 示例行为 |
+| AeternumGenesis 功能 | 使用的 API | 示例行为 |
 |---|---|---|
 | **物品** | `ItemAPI#registerTemplate` / `unregisterTemplate` | 运行时注册 `rpg_fiery_longsword` 与 `rpg_guardian_shield` |
 | **怪物** | `MobAPI#registerTemplate` / `unregisterTemplate` | 注册带有阵营、AI 目标、装备与 BossBar 的 `rpg_fallen_knight` 和 `rpg_necromancer` |
@@ -20,7 +20,7 @@ examples/rpg-integration/
 ├── pom.xml
 ├── README.md
 └── src/main/
-    ├── java/net/sakurain/mc/easymobs/examples/rpg/
+    ├── java/net/sakurain/mc/genesis/examples/rpg/
     │   ├── RpgIntegrationPlugin.java   # 主插件 + 指令处理
     │   └── LaunchFireworkEffect.java   # 自定义技能效果
     └── resources/plugin.yml
@@ -28,7 +28,7 @@ examples/rpg-integration/
 
 ## 构建
 
-1. 先构建 EasyMobs，确保本地 JAR 存在：
+1. 先构建 AeternumGenesis，确保本地 JAR 存在：
 
    ```bash
    cd ../..
@@ -50,11 +50,11 @@ examples/rpg-integration/
 
 ```
 server/plugins/
-├── EasyMobs-1.0.0-SNAPSHOT.jar
+├── AeternumGenesis-1.0.0-SNAPSHOT.jar
 └── rpg-integration-1.0.0-SNAPSHOT.jar
 ```
 
-`EasyMobsRpgIntegration` 在 `plugin.yml` 中声明了 `depend: [EasyMobs]`，因此 Paper 会先加载 EasyMobs。
+`AeternumGenesisRpgIntegration` 在 `plugin.yml` 中声明了 `depend: [AeternumGenesis]`，因此 Paper 会先加载 AeternumGenesis。
 
 ## 游戏内使用
 
@@ -71,14 +71,14 @@ server/plugins/
 ## 如何获取 API
 
 ```java
-EasyMobsAPI api = EasyMobsAPI.getInstance();
+AeternumGenesisAPI api = AeternumGenesisAPI.getInstance();
 ItemAPI  itemAPI  = api.getItemAPI();
 MobAPI   mobAPI   = api.getMobAPI();
 SkillAPI skillAPI = api.getSkillAPI();
 SpawnAPI spawnAPI = api.getSpawnAPI();
 ```
 
-`EasyMobsAPI#getInstance()` 通过 Bukkit 的 `ServicesManager` 读取 EasyMobs 注册的服务。
+`AeternumGenesisAPI#getInstance()` 通过 Bukkit 的 `ServicesManager` 读取 AeternumGenesis 注册的服务。
 
 ## 运行时注册模式
 
@@ -98,11 +98,11 @@ config.set("attributes", List.of(
 boolean ok = api.getMobAPI().registerTemplate("rpg_fallen_knight", config);
 ```
 
-键名与值格式和 EasyMobs YAML 配置完全一致（物品、怪物、技能、生成规则）。
+键名与值格式和 AeternumGenesis YAML 配置完全一致（物品、怪物、技能、生成规则）。
 
 ## 自定义技能效果
 
-要添加 EasyMobs 尚未内置的效果类型，实现公开的 `SkillEffect` 接口并注册工厂：
+要添加 AeternumGenesis 尚未内置的效果类型，实现公开的 `SkillEffect` 接口并注册工厂：
 
 ```java
 api.getSkillAPI().registerEffect("launch_firework", LaunchFireworkEffect::new);
@@ -125,6 +125,6 @@ effects:
 
 ## 备注
 
-- 本示例通过 Maven 的 `system` scope 依赖 `target/easymobs-1.0.0-SNAPSHOT.jar`。在实际项目中，应将 EasyMobs 安装到本地/远程 Maven 仓库，或改用多模块构建。
+- 本示例通过 Maven 的 `system` scope 依赖 `target/aeternumgenesis-1.0.0-SNAPSHOT.jar`。在实际项目中，应将 AeternumGenesis 安装到本地/远程 Maven 仓库，或改用多模块构建。
 - 属性 `operation: SET_VALUE` 让配置值直接等于原版提示条显示值（例如 `1.6` 攻击速度）。
 - 阵营 `undead_legion` 可防止示例怪物互相攻击。

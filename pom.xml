@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.sakurain.mc</groupId>
-    <artifactId>easymobs</artifactId>
+    <artifactId>aeternumgenesis</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>EasyMobs</name>
+    <name>AeternumGenesis</name>
     <description>Lightweight custom mob/item plugin inspired by MythicMobs for PaperMC 26.1.2</description>
 
     <properties>

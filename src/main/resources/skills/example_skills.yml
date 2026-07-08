@@ -1,5 +1,5 @@
-# EasyMobs Example Skill Templates
-# Place files in plugins/EasyMobs/skills/ (supports subdirectories)
+# AeternumGenesis Example Skill Templates
+# Place files in plugins/AeternumGenesis/skills/ (supports subdirectories)
 
 zombie_slash:
   cooldown: 3.0

@@ -1,17 +1,17 @@
-# EasyMobs
+# AeternumGenesis
 
 [![PaperMC](https://img.shields.io/badge/PaperMC-26.1.2-blue.svg)](https://papermc.io/)
 [![Java](https://img.shields.io/badge/Java-25%2B-orange.svg)](https://adoptium.net/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> A lightweight, YAML-driven custom mob and item plugin for **PaperMC 26.1.2**, inspired by MythicMobs. EasyMobs lets server owners create custom monsters, equipment, skills, spawn rules, and item sets — all without touching any code or NMS.
+> A lightweight, YAML-driven custom mob and item plugin for **PaperMC 26.1.2**, inspired by MythicMobs. AeternumGenesis lets server owners create custom monsters, equipment, skills, spawn rules, and item sets — all without touching any code or NMS.
 
 ---
 
 ## Table of Contents
 
-- [Features](#features)
-- [Requirements](#requirements)
+[Features](#features)
+[Requirements](#requirements)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
@@ -37,7 +37,7 @@
 - **Natural Spawn Control** — REPLACE, ADD, and DENY spawn rules with time, weather, biome, light-level, Y-level, moon-phase, and density conditions.
 - **Item Sets** — Grant bonus effects when players equip a complete set of custom items.
 - **Public API** — Stable API with Bukkit events for other plugins to hook into, plus registry extensions for custom effects and conditions.
-- **Hot Reload** — Reload all configs in-game with `/ezmobs reload`.
+- **Hot Reload** — Reload all configs in-game with `/genesis reload`.
 - **Zero NMS** — Built purely on Bukkit/Paper API for maximum compatibility and maintainability.
 
 ---
@@ -56,24 +56,24 @@
 
 ## Installation
 
-1. Download the latest `EasyMobs-*.jar` from [Releases](../../releases).
+1. Download the latest `AeternumGenesis-*.jar` from [Releases](../../releases).
 2. Place the jar in your server's `plugins/` folder.
 3. Start the server once to generate the default config folders.
-4. Edit the YAML files in `plugins/EasyMobs/` to customize items, mobs, skills, spawns, and sets.
-5. Run `/ezmobs reload` or restart the server.
+4. Edit the YAML files in `plugins/AeternumGenesis/` to customize items, mobs, skills, spawns, and sets.
+5. Run `/genesis reload` or restart the server.
 
 ### Building from Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/IYeaSakura/EasyMobs.git
-cd EasyMobs
+git clone https://github.com/IYeaSakura/AeternumGenesis.git
+cd AeternumGenesis
 
 # Build with Maven
 mvn clean package
 
 # Output:
-# target/EasyMobs-1.0.0-SNAPSHOT.jar
+# target/AeternumGenesis-1.0.0-SNAPSHOT.jar
 ```
 
 ---
@@ -82,7 +82,7 @@ mvn clean package
 
 ### 1. Create a Custom Item
 
-Create `plugins/EasyMobs/items/my_items.yml`:
+Create `plugins/AeternumGenesis/items/my_items.yml`:
 
 ```yaml
 flaming_sword:
@@ -110,12 +110,12 @@ flaming_sword:
 Give it to yourself:
 
 ```
-/ezmobs give flaming_sword
+/genesis give flaming_sword
 ```
 
 ### 2. Create a Custom Mob
 
-Create `plugins/EasyMobs/mobs/my_mobs.yml`:
+Create `plugins/AeternumGenesis/mobs/my_mobs.yml`:
 
 ```yaml
 flame_zombie:
@@ -141,7 +141,7 @@ flame_zombie:
 Spawn it:
 
 ```
-/ezmobs spawn flame_zombie
+/genesis spawn flame_zombie
 ```
 
 ### 3. Bind a Skill
@@ -161,10 +161,10 @@ flame_zombie:
 
 ## Configuration
 
-All configuration files live under `plugins/EasyMobs/`:
+All configuration files live under `plugins/AeternumGenesis/`:
 
 ```
-plugins/EasyMobs/
+plugins/AeternumGenesis/
 ├── config.yml              # Main plugin settings
 ├── items/                  # Item templates (*.yml)
 ├── mobs/                   # Mob templates (*.yml)
@@ -270,11 +270,11 @@ equipment:
     item: diamond_helmet
     drop_chance: 0.1
   main_hand:
-    item: ezmobs:flaming_sword
+    item: genesis:flaming_sword
     drop_chance: 0.05
 ```
 
-Use `ezmobs:item_id` to equip a custom item.
+Use `genesis:item_id` to equip a custom item.
 
 #### BossBar Example
 
@@ -292,7 +292,7 @@ bossbar:
 
 ### Skills
 
-Skills are reusable templates stored in `plugins/EasyMobs/skills/`.
+Skills are reusable templates stored in `plugins/AeternumGenesis/skills/`.
 
 ```yaml
 fire_strike:
@@ -421,7 +421,7 @@ zombie_warrior_fullmoon:
 
 ### Item Sets
 
-Define set bonuses in `plugins/EasyMobs/sets/`:
+Define set bonuses in `plugins/AeternumGenesis/sets/`:
 
 ```yaml
 mirror_flower:
@@ -462,34 +462,34 @@ mirror_flower:
 
 | Command | Permission | Description |
 |---------|------------|-------------|
-| `/ezmobs` | `easymobs.use` | Base command |
-| `/ezmobs give <item-id> [player] [amount]` | `easymobs.give` | Give a custom item |
-| `/ezmobs spawn <mob-id> [player\|x y z] [level]` | `easymobs.spawn` | Spawn a custom mob |
-| `/ezmobs reload` | `easymobs.reload` | Reload all configs |
-| `/ezmobs list <items\|mobs\|skills\|spawns> [page]` | `easymobs.list` | List loaded templates |
+| `/genesis` | `genesis.use` | Base command |
+| `/genesis give <item-id> [player] [amount]` | `genesis.give` | Give a custom item |
+| `/genesis spawn <mob-id> [player\|x y z] [level]` | `genesis.spawn` | Spawn a custom mob |
+| `/genesis reload` | `genesis.reload` | Reload all configs |
+| `/genesis list <items\|mobs\|skills\|spawns> [page]` | `genesis.list` | List loaded templates |
 
 ### Permission Nodes
 
 ```yaml
-easymobs.use:      default: true
-easymobs.list:     default: true
-easymobs.give:     default: op
-easymobs.spawn:    default: op
-easymobs.reload:   default: op
-easymobs.admin:    default: op   # grants all above
+genesis.use:      default: true
+genesis.list:     default: true
+genesis.give:     default: op
+genesis.spawn:    default: op
+genesis.reload:   default: op
+genesis.admin:    default: op   # grants all above
 ```
 
 ---
 
 ## API for Developers
 
-EasyMobs exposes a public API through Bukkit's `ServicesManager`.
+AeternumGenesis exposes a public API through Bukkit's `ServicesManager`.
 
 ### Getting the API
 
 ```java
-if (EasyMobsAPI.isAvailable()) {
-    EasyMobsAPI api = EasyMobsAPI.getInstance();
+if (AeternumGenesisAPI.isAvailable()) {
+    AeternumGenesisAPI api = AeternumGenesisAPI.getInstance();
     api.getMobAPI().spawnMob("zombie_warrior", location, 5);
 }
 ```
@@ -557,7 +557,7 @@ Make sure `plugin.yml` contains `api-version: '26.1.2'` (already set by default)
 
 ### Mobs/items not loading
 - Check the console for YAML parse errors.
-- Verify file paths are under `plugins/EasyMobs/items/`, `mobs/`, `skills/`, `spawns/`, or `sets/`.
+- Verify file paths are under `plugins/AeternumGenesis/items/`, `mobs/`, `skills/`, `spawns/`, or `sets/`.
 - Ensure template IDs are unique across all files of the same type.
 
 ### Spawn rules not working
@@ -580,7 +580,7 @@ Copyright (c) 2026 Yuyang.Wang
 ## Credits
 
 - **Author:** Yuyang.Wang
-- **Repository:** [IYeaSakura/EasyMobs](https://github.com/IYeaSakura/EasyMobs)
+- **Repository:** [IYeaSakura/AeternumGenesis](https://github.com/IYeaSakura/AeternumGenesis)
 - **Powered by:** [PaperMC](https://papermc.io/)
 
 If you find bugs or have feature requests, please open an [issue](../../issues) or submit a pull request.
