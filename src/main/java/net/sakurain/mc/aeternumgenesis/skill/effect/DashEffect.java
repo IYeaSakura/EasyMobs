@@ -1,6 +1,7 @@
 package net.sakurain.mc.aeternumgenesis.skill.effect;
 
 import net.sakurain.mc.aeternumgenesis.skill.SkillContext;
+import net.sakurain.mc.aeternumgenesis.util.ConfigParseUtil;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
@@ -81,9 +82,8 @@ public class DashEffect extends AbstractSkillEffect {
         }
         String particleName = string("particle", "ASH");
         Particle particle;
-        try {
-            particle = Particle.valueOf(particleName.toUpperCase());
-        } catch (IllegalArgumentException e) {
+        particle = ConfigParseUtil.parseParticle(particleName);
+        if (particle == null) {
             particle = Particle.ASH;
         }
         world.spawnParticle(particle, location, 3, 0.3, 0.3, 0.3, 0);

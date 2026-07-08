@@ -108,9 +108,8 @@ public class AoeEffect extends AbstractSkillEffect {
         }
         String particleName = string("particle", "FLAME");
         Particle particle;
-        try {
-            particle = Particle.valueOf(particleName.toUpperCase());
-        } catch (IllegalArgumentException e) {
+        particle = ConfigParseUtil.parseParticle(particleName);
+        if (particle == null) {
             particle = Particle.FLAME;
         }
         int count = integer("particle_count", 50);
@@ -125,9 +124,8 @@ public class AoeEffect extends AbstractSkillEffect {
         }
         String soundName = string("sound", "ENTITY_GENERIC_EXPLODE");
         Sound sound;
-        try {
-            sound = Sound.valueOf(soundName.toUpperCase());
-        } catch (IllegalArgumentException e) {
+        sound = ConfigParseUtil.parseSound(soundName);
+        if (sound == null) {
             sound = Sound.ENTITY_GENERIC_EXPLODE;
         }
         world.playSound(center, sound, 1.0f, 1.0f);
