@@ -57,6 +57,9 @@ public class SkillManager {
         registerEffect("execute_command", ExecuteCommandEffect::new);
         registerEffect("delay", DelayEffect::new);
         registerEffect("projectile", ProjectileEffect::new);
+        registerEffect("dash", DashEffect::new);
+        registerEffect("aoe", AoeEffect::new);
+        registerEffect("atmosphere", AtmosphereSkillEffect::new);
     }
 
     private void registerDefaultConditions() {

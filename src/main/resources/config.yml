@@ -46,5 +46,11 @@ skills:
   # Names should NOT include the leading slash.
   allowed-execute-commands: []
 
+# Explosion control settings
+explosions:
+  # If true, prevents all mob explosions (custom mobs and creepers) from breaking blocks.
+  # Individual mobs can override this with the 'explosion.destroy_terrain' setting.
+  disable-mob-terrain-damage: false
+
 # Debug mode (logs extra information)
 debug: false

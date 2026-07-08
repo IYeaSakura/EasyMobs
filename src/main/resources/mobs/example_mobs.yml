@@ -330,3 +330,43 @@ blood_knight:
     explosion: false
     fall: true
     drowning: false
+
+ash_creeper:
+  type: CREEPER
+  display_name: "&8✦ &lAsh Creeper"
+  health: 40
+  max_health: 40
+  attributes:
+    - type: MOVEMENT_SPEED
+      amount: 0.15
+      operation: ADD_NUMBER
+    - type: FOLLOW_RANGE
+      amount: 20.0
+      operation: ADD_NUMBER
+  glowing: true
+  glowing_color: GRAY
+  explosion:
+    # Set to false to prevent this mob from breaking blocks when it explodes.
+    # Set to true to allow terrain damage. Remove the key to use the global default.
+    destroy_terrain: false
+    # Optional explosion yield override (block drop chance, -1 = vanilla default)
+    yield: -1.0
+    # Optional explosion power override (-1 = vanilla default)
+    power: -1.0
+  particles:
+    - type: ASH
+      location: FEET
+      count: 3
+      offset_x: 0.3
+      offset_y: 0.1
+      offset_z: 0.3
+      interval: 15
+  immunities:
+    fire: false
+    projectile: false
+    melee: false
+    potion: false
+    sunlight: false
+    explosion: true
+    fall: false
+    drowning: false

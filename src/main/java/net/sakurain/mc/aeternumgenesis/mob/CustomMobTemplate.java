@@ -52,6 +52,7 @@ public final class CustomMobTemplate {
     private final AIConfig ai;
     private final DropsConfig drops;
     private final List<SkillBinding> skills;
+    private final ExplosionConfig explosion;
 
     public CustomMobTemplate(String id, EntityType type, String displayName, double health, double maxHealth,
                              List<MobAttribute> attributes, Map<EquipmentSlot, EquipmentEntry> equipment,
@@ -60,7 +61,7 @@ public final class CustomMobTemplate {
                              AmbientSoundConfig ambientSound, List<PotionEffectConfig> potionEffects,
                              SensesConfig senses, WaterBehaviorConfig waterBehavior, ImmunitiesConfig immunities,
                              BreakDoorConfig breakDoor, String faction, AIConfig ai, DropsConfig drops,
-                             List<SkillBinding> skills) {
+                             List<SkillBinding> skills, ExplosionConfig explosion) {
         this.id = id;
         this.type = type;
         this.displayName = displayName;
@@ -85,6 +86,7 @@ public final class CustomMobTemplate {
         this.ai = ai == null ? AIConfig.DEFAULT : ai;
         this.drops = drops == null ? DropsConfig.DEFAULT : drops;
         this.skills = skills == null ? List.of() : List.copyOf(skills);
+        this.explosion = explosion == null ? ExplosionConfig.DEFAULT : explosion;
     }
 
     public String getId() {
@@ -183,6 +185,10 @@ public final class CustomMobTemplate {
         return skills;
     }
 
+    public ExplosionConfig getExplosion() {
+        return explosion;
+    }
+
     /**
      * Builds a template from a configuration section.
      *
@@ -216,10 +222,23 @@ public final class CustomMobTemplate {
         AIConfig ai = parseAI(config.getConfigurationSection("ai"));
         DropsConfig drops = parseDrops(config.getConfigurationSection("drops"), id);
         List<SkillBinding> skills = parseSkills(config.getMapList("skills"));
+        ExplosionConfig explosion = parseExplosion(config.getConfigurationSection("explosion"));
 
         return new CustomMobTemplate(id, type, displayName, health, maxHealth, attributes, equipment,
                 equipmentEffects, glowing, glowingColor, size, baby, bossbar, particles, ambientSound,
-                potionEffects, senses, waterBehavior, immunities, breakDoor, faction, ai, drops, skills);
+                potionEffects, senses, waterBehavior, immunities, breakDoor, faction, ai, drops, skills,
+                explosion);
+    }
+
+    private static ExplosionConfig parseExplosion(ConfigurationSection section) {
+        if (section == null) {
+            return ExplosionConfig.DEFAULT;
+        }
+        return new ExplosionConfig(
+                section.isSet("destroy_terrain") ? section.getBoolean("destroy_terrain") : null,
+                (float) section.getDouble("yield", -1.0),
+                (float) section.getDouble("power", -1.0)
+        );
     }
 
     private static EntityType parseEntityType(String value) {
@@ -766,5 +785,9 @@ public final class CustomMobTemplate {
 
     public record DropsConfig(boolean overrideVanilla, int experience, List<DropEntry> items) {
         public static final DropsConfig DEFAULT = new DropsConfig(false, 0, Collections.emptyList());
+    }
+
+    public record ExplosionConfig(Boolean destroyTerrain, float yield, float power) {
+        public static final ExplosionConfig DEFAULT = new ExplosionConfig(null, -1.0f, -1.0f);
     }
 }

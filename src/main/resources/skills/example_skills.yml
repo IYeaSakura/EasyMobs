@@ -127,3 +127,62 @@ warrior_death:
     - type: execute_command
       command: "say &cA Zombie Warrior fell, but its explosion echoes!"
       as_console: true
+
+blood_dash:
+  type: "dash"
+  target: "self"
+  cooldown: 600
+  cast_time: 0
+  effects:
+    - type: "dash"
+      distance: 5
+      damage_on_pass: 6
+      knockback: 0.5
+      hit_radius: 1.5
+      stop_on_block: true
+      particle: "REDSTONE"
+  particles:
+    - type: "REDSTONE"
+      color: "#8B0000"
+      count: 50
+      spread: "1,0.5,1"
+  sounds:
+    - id: "ENTITY_ENDERMAN_TELEPORT"
+      volume: 1.0
+      pitch: 0.8
+
+blood_domain:
+  type: "atmosphere"
+  target: "self"
+  cooldown: 1200
+  effects:
+    - type: "atmosphere"
+      atmosphere_id: "blood_moon_active"
+      radius: 15
+      duration: 15
+      center: "caster"
+  sounds:
+    - id: "ENTITY_ENDER_DRAGON_GROWL"
+      volume: 0.8
+      pitch: 1.0
+
+blood_burst:
+  type: "aoe"
+  target: "self"
+  cooldown: 400
+  effects:
+    - type: "aoe"
+      radius: 5
+      damage: 10
+      knockback: 1.0
+      damage_to_all: false
+      particle: "REDSTONE"
+      particle_count: 80
+      color: "#8B0000"
+      sound: "ENTITY_GENERIC_EXPLODE"
+      potion_effects:
+        - type: "SLOWNESS"
+          duration: 100
+          amplifier: 1
+          show_particles: false
+          show_icon: true

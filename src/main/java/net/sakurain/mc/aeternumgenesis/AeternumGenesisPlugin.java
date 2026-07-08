@@ -123,6 +123,7 @@ public class AeternumGenesisPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MobEquipmentAttackHandler(), this);
         getServer().getPluginManager().registerEvents(new CustomBlockListener(this), this);
         getServer().getPluginManager().registerEvents(new ProjectileHitListener(), this);
+        getServer().getPluginManager().registerEvents(new net.sakurain.mc.aeternumgenesis.listener.ExplosionControlListener(this), this);
     }
 
     private void registerCommands() {
