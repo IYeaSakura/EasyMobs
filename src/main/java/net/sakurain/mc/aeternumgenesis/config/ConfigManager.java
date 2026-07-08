@@ -25,6 +25,7 @@ public class ConfigManager {
     private final Map<String, YamlConfiguration> atmosphereConfigs = new HashMap<>();
     private final Map<String, YamlConfiguration> ecosystemConfigs = new HashMap<>();
     private final Map<String, YamlConfiguration> worldRuleConfigs = new HashMap<>();
+    private final Map<String, YamlConfiguration> eventChainConfigs = new HashMap<>();
 
     public ConfigManager(AeternumGenesisPlugin plugin) {
         this.plugin = plugin;
@@ -40,6 +41,7 @@ public class ConfigManager {
         loadConfigs("atmospheres", atmosphereConfigs);
         loadConfigs("ecosystems", ecosystemConfigs);
         loadConfigs("worlds", worldRuleConfigs);
+        loadConfigs("events", eventChainConfigs);
     }
 
     public void reloadAll() {
@@ -52,6 +54,7 @@ public class ConfigManager {
         atmosphereConfigs.clear();
         ecosystemConfigs.clear();
         worldRuleConfigs.clear();
+        eventChainConfigs.clear();
         loadAll();
     }
 
@@ -121,5 +124,9 @@ public class ConfigManager {
 
     public Map<String, YamlConfiguration> getWorldRuleConfigs() {
         return Map.copyOf(worldRuleConfigs);
+    }
+
+    public Map<String, YamlConfiguration> getEventChainConfigs() {
+        return Map.copyOf(eventChainConfigs);
     }
 }
