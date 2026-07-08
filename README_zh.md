@@ -1,13 +1,9 @@
 # AeternumGenesis
 
-<div align="center">
-
 [![PaperMC](https://img.shields.io/badge/PaperMC-26.1.2-000000?logo=paper-minecraft)](https://papermc.io/)
 [![Java](https://img.shields.io/badge/Java-25%2B-007396?logo=openjdk)](https://openjdk.org/)
 [![Maven](https://img.shields.io/badge/Maven-3.9%2B-C71A36?logo=apache-maven)](https://maven.apache.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-
-</div>
 
 一款受 MythicMobs 启发的、基于 YAML 配置的轻量级 **PaperMC 26.1.2** 自定义怪物与物品插件。AeternumGenesis 让服主无需编写代码或接触 NMS，即可创建自定义怪物、装备、技能、生成规则以及物品套装。
 
@@ -44,6 +40,11 @@
 - 通过 Bukkit 的 ServicesManager 访问物品、怪物、技能、生成、套装、方块和注册表 API。
 - 监听自定义物品构建、怪物生成、怪物死亡、技能执行等 Bukkit 事件。
 - 从外部插件注册自定义技能效果、技能条件和生成条件。
+
+### 世界系统
+- **氛围引擎** —— 应用分层的区域化氛围，包含天气、药水效果、粒子、音效、UI 层、实体修饰与环境规则。
+- **生态系统** —— 按生物群系绑定自定义怪物，支持权重化生成规则、群体大小、密度限制、环境粒子与环境音效。
+- **世界规则** —— 按世界控制全局游戏规则、死亡行为、PVP、伤害与饥饿倍率。
 
 ### 运维特性
 - 通过 `/genesis reload` 在游戏内热重载所有 YAML 配置。
@@ -102,7 +103,9 @@ AeternumGenesis/
 │   ├── block/                                       # 自定义方块系统
 │   ├── listener/                                    # 事件监听器
 │   ├── ai/                                          # 自定义 AI 目标
-│   └── util/                                        # 工具类
+│   ├── util/                                        # 工具类
+│   ├── atmosphere/                                  # 氛围引擎
+│   └── world/                                       # 世界规则管理器
 ├── src/main/resources/                              # 默认配置模板
 │   ├── plugin.yml                                   # 插件描述文件
 │   ├── config.yml                                   # 主配置
@@ -111,7 +114,10 @@ AeternumGenesis/
 │   ├── skills/example_skills.yml                    # 技能模板示例
 │   ├── spawns/example_spawns.yml                    # 生成规则示例
 │   ├── sets/example_set.yml                         # 物品套装示例
-│   └── blocks/example_blocks.yml                    # 自定义方块示例
+│   ├── blocks/example_blocks.yml                    # 自定义方块示例
+│   ├── atmospheres/example_atmosphere.yml           # 氛围示例
+│   ├── ecosystems/example_ecosystem.yml             # 生态示例
+│   └── worlds/world_rules.yml                       # 世界规则示例
 ├── test/                                            # 测试服配置模板
 ├── examples/rpg-integration/                        # 外部插件示例
 ├── .doc/                                            # 内部文档与技能说明
@@ -268,6 +274,7 @@ if (AeternumGenesisAPI.isAvailable()) {
 | `SetAPI` | 查询物品套装及其奖励 |
 | `BlockAPI` | 查询和注册自定义方块 |
 | `RegistryAPI` | 注册自定义效果和条件 |
+| `AtmosphereAPI` | 应用、移除和查询活跃氛围 |
 
 ### 生成怪物
 
@@ -303,6 +310,12 @@ public void onCustomMobDeath(CustomMobDeathEvent event) {
 ```java
 api.getRegistryAPI().registerEffect("freeze", () -> new FreezeEffect());
 api.getRegistryAPI().registerCondition("has_permission", () -> new HasPermissionCondition());
+```
+
+### 应用氛围
+
+```java
+UUID instance = api.getAtmosphereAPI().applyAtmosphere(location, 50.0, "blood_moon_active", 1200L);
 ```
 
 ### 可用事件
@@ -413,6 +426,89 @@ blood_zombie_night:
     - night true
     - outside true
     - light_level "0-7"
+```
+
+### 氛围
+
+创建 `plugins/AeternumGenesis/atmospheres/my_atmospheres.yml`：
+
+```yaml
+blood_moon_active:
+  priority: 10
+  stackable: false
+  layers:
+    weather:
+      type: "THUNDER"
+    potion_effects:
+      - type: "DARKNESS"
+        duration: 200
+        amplifier: 0
+        show_particles: false
+        show_icon: false
+    particles:
+      - type: "ASH"
+        density: "high"
+        pattern: "sphere"
+        radius: 30
+        offset: "0,3,0"
+        interval: 5
+    sounds:
+      - type: "ambient"
+        id: "AMBIENT_CAVE"
+        volume: 0.4
+        interval: 60
+    ui:
+      action_bar: "&4血月侵蚀度: {progress}%"
+      boss_bar:
+        text: "&c&l血月之力"
+        color: "RED"
+        style: "SOLID"
+```
+
+游戏内应用：
+
+```
+/genesis atmosphere apply blood_moon_active 50 60
+```
+
+### 生态
+
+创建 `plugins/AeternumGenesis/ecosystems/my_ecosystems.yml`：
+
+```yaml
+corrupted_forest:
+  biomes:
+    - "dark_forest"
+    - "old_growth_pine_taiga"
+  spawn_rules:
+    blood_zombie:
+      weight: 40
+      group_size: "2-5"
+      max_per_chunk: 8
+  ambient_particles:
+    - type: "ASH"
+      density: "medium"
+      height: "ground+2"
+      interval: 40
+```
+
+### 世界规则
+
+创建 `plugins/AeternumGenesis/worlds/world_rules.yml`：
+
+```yaml
+world_rules:
+  global:
+    weather_cycle: true
+    natural_regeneration: false
+    mob_griefing: false
+  death:
+    keep_inventory: false
+    death_message_format: "&c{player} &7在 {world} 陨落了..."
+  player:
+    pvp: true
+    fall_damage_multiplier: 1.0
+    fire_damage_multiplier: 1.0
 ```
 
 ---

@@ -15,6 +15,7 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -36,7 +37,8 @@ public class NaturalSpawnTask implements Runnable {
     public void run() {
         SpawnManager spawnManager = plugin.getSpawnManager();
         CustomMobManager mobManager = plugin.getMobManager();
-        if (spawnManager == null || mobManager == null) {
+        EcosystemManager ecosystemManager = plugin.getEcosystemManager();
+        if (spawnManager == null || mobManager == null || ecosystemManager == null) {
             return;
         }
 
@@ -55,50 +57,133 @@ public class NaturalSpawnTask implements Runnable {
                 continue;
             }
 
-            List<SpawnRule> rules = spawnManager.getAddRules(world.getName());
             int spawned = 0;
+
+            // First try explicit ADD spawn rules
+            List<SpawnRule> rules = spawnManager.getAddRules(world.getName());
             for (SpawnRule rule : rules) {
                 if (spawned >= maxPerCycle) {
                     break;
                 }
-                if (Math.random() > rule.getChance()) {
-                    continue;
+                if (spawnFromRule(playerLoc, world, rule, mobManager, minDistance, maxDistance, maxAttempts)) {
+                    spawned++;
                 }
+            }
 
-                Location point = selectSpawnPoint(world, playerLoc, rule.getPositionType(), minDistance, maxDistance, maxAttempts);
-                if (point == null) {
-                    continue;
+            // Then try ecosystem-based weighted spawns
+            if (spawned < maxPerCycle) {
+                List<EcosystemTemplate> ecosystems = ecosystemManager.getMatchingEcosystems(playerLoc);
+                for (EcosystemTemplate ecosystem : ecosystems) {
+                    if (spawned >= maxPerCycle) {
+                        break;
+                    }
+                    EcosystemTemplate.SpawnEntry entry = selectWeightedEntry(ecosystem.getSpawnEntries());
+                    if (entry == null) {
+                        continue;
+                    }
+                    CustomMobTemplate template = mobManager.getTemplate(entry.mobId());
+                    if (template == null) {
+                        continue;
+                    }
+                    Location point = selectSpawnPoint(world, playerLoc, SpawnRule.PositionType.LAND, minDistance, maxDistance, maxAttempts);
+                    if (point == null) {
+                        continue;
+                    }
+                    if (!checkEcosystemDensity(entry, point)) {
+                        continue;
+                    }
+                    int groupSize = parseGroupSize(entry.groupSize());
+                    for (int i = 0; i < groupSize && spawned < maxPerCycle; i++) {
+                        LivingEntity entity = MobSpawner.spawn(template, point);
+                        if (entity == null) {
+                            continue;
+                        }
+                        LevelSystem.applyLevel(entity, 1, template);
+                        spawned++;
+                    }
                 }
-                if (!matchesPositionType(point, rule.getPositionType())) {
-                    continue;
-                }
-                if (!matchesBiomes(rule, point)) {
-                    continue;
-                }
-                if (!testConditions(rule, point)) {
-                    continue;
-                }
-                if (!checkDensity(rule, point)) {
-                    continue;
-                }
-
-                CustomMobTemplate template = mobManager.getTemplate(rule.getType());
-                if (template == null) {
-                    continue;
-                }
-
-                LivingEntity entity = MobSpawner.spawn(template, point);
-                if (entity == null) {
-                    continue;
-                }
-
-                int level = rule.getRandomLevel();
-                if (level > 0) {
-                    LevelSystem.applyLevel(entity, level, template);
-                }
-                spawned++;
             }
         }
+    }
+
+    private boolean spawnFromRule(Location playerLoc, World world, SpawnRule rule, CustomMobManager mobManager,
+                                  int minDistance, int maxDistance, int maxAttempts) {
+        if (Math.random() > rule.getChance()) {
+            return false;
+        }
+        Location point = selectSpawnPoint(world, playerLoc, rule.getPositionType(), minDistance, maxDistance, maxAttempts);
+        if (point == null) {
+            return false;
+        }
+        if (!matchesPositionType(point, rule.getPositionType())) {
+            return false;
+        }
+        if (!matchesBiomes(rule, point)) {
+            return false;
+        }
+        if (!testConditions(rule, point)) {
+            return false;
+        }
+        if (!checkDensity(rule, point)) {
+            return false;
+        }
+        CustomMobTemplate template = mobManager.getTemplate(rule.getType());
+        if (template == null) {
+            return false;
+        }
+        LivingEntity entity = MobSpawner.spawn(template, point);
+        if (entity == null) {
+            return false;
+        }
+        int level = rule.getRandomLevel();
+        if (level > 0) {
+            LevelSystem.applyLevel(entity, level, template);
+        }
+        return true;
+    }
+
+    private EcosystemTemplate.SpawnEntry selectWeightedEntry(List<EcosystemTemplate.SpawnEntry> entries) {
+        if (entries.isEmpty()) {
+            return null;
+        }
+        int totalWeight = entries.stream().mapToInt(EcosystemTemplate.SpawnEntry::weight).sum();
+        if (totalWeight <= 0) {
+            return null;
+        }
+        int roll = random.nextInt(totalWeight);
+        int current = 0;
+        for (EcosystemTemplate.SpawnEntry entry : entries) {
+            current += entry.weight();
+            if (roll < current) {
+                return entry;
+            }
+        }
+        return entries.get(entries.size() - 1);
+    }
+
+    private int parseGroupSize(String value) {
+        if (value == null || value.isEmpty()) {
+            return 1;
+        }
+        try {
+            if (value.contains("-")) {
+                String[] parts = value.split("-");
+                int min = Integer.parseInt(parts[0].trim());
+                int max = Integer.parseInt(parts[1].trim());
+                return min + random.nextInt(Math.max(1, max - min + 1));
+            }
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            return 1;
+        }
+    }
+
+    private boolean checkEcosystemDensity(EcosystemTemplate.SpawnEntry entry, Location location) {
+        if (entry.maxPerChunk() <= 0) {
+            return true;
+        }
+        int count = MobTracker.getInstance().countMobsInChunk(location.getChunk());
+        return count < entry.maxPerChunk();
     }
 
     private boolean isSurvivalOrAdventure(Player player) {

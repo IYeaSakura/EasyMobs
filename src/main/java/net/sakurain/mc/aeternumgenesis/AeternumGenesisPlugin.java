@@ -2,9 +2,11 @@ package net.sakurain.mc.aeternumgenesis;
 
 import net.sakurain.mc.aeternumgenesis.api.AeternumGenesisAPI;
 import net.sakurain.mc.aeternumgenesis.api.impl.AeternumGenesisAPIImpl;
+import net.sakurain.mc.aeternumgenesis.atmosphere.AtmosphereManager;
 import net.sakurain.mc.aeternumgenesis.command.GenesisCommand;
 import net.sakurain.mc.aeternumgenesis.config.ConfigManager;
 import net.sakurain.mc.aeternumgenesis.item.CustomItemManager;
+import net.sakurain.mc.aeternumgenesis.spawn.EcosystemManager;
 import net.sakurain.mc.aeternumgenesis.item.effect.ItemEffectHandler;
 import net.sakurain.mc.aeternumgenesis.item.set.ItemSetManager;
 import net.sakurain.mc.aeternumgenesis.listener.CreatureSpawnListener;
@@ -16,6 +18,7 @@ import net.sakurain.mc.aeternumgenesis.mob.MobEquipmentAttackHandler;
 import net.sakurain.mc.aeternumgenesis.mob.MobTracker;
 import net.sakurain.mc.aeternumgenesis.skill.SkillManager;
 import net.sakurain.mc.aeternumgenesis.spawn.SpawnManager;
+import net.sakurain.mc.aeternumgenesis.world.WorldRuleManager;
 import net.sakurain.mc.aeternumgenesis.ai.AICombatListener;
 import net.sakurain.mc.aeternumgenesis.ai.CustomAIController;
 import net.sakurain.mc.aeternumgenesis.block.CustomBlockManager;
@@ -37,6 +40,9 @@ public class AeternumGenesisPlugin extends JavaPlugin {
     private SpawnManager spawnManager;
     private CustomBlockManager blockManager;
     private ItemEffectHandler itemEffectHandler;
+    private AtmosphereManager atmosphereManager;
+    private EcosystemManager ecosystemManager;
+    private WorldRuleManager worldRuleManager;
     private AeternumGenesisAPIImpl api;
 
     @Override
@@ -58,6 +64,9 @@ public class AeternumGenesisPlugin extends JavaPlugin {
         this.blockManager = new CustomBlockManager(this);
         this.blockManager.loadConfigs(configManager.getBlockConfigs());
         this.blockManager.respawnAllHolograms();
+        this.atmosphereManager = new AtmosphereManager(configManager.getAtmosphereConfigs());
+        this.ecosystemManager = new EcosystemManager(configManager.getEcosystemConfigs());
+        this.worldRuleManager = new WorldRuleManager(configManager.getWorldRuleConfigs());
 
         registerListeners();
         registerCommands();
@@ -66,7 +75,9 @@ public class AeternumGenesisPlugin extends JavaPlugin {
         getLogger().info("AeternumGenesis enabled! Items: " + itemManager.getTemplateCount()
                 + ", Mobs: " + mobManager.getTemplateCount()
                 + ", Skills: " + skillManager.getTemplateCount()
-                + ", SpawnRules: " + spawnManager.getRuleCount());
+                + ", SpawnRules: " + spawnManager.getRuleCount()
+                + ", Atmospheres: " + atmosphereManager.getTemplateCount()
+                + ", Ecosystems: " + ecosystemManager.getTemplateCount());
     }
 
     @Override
@@ -81,6 +92,15 @@ public class AeternumGenesisPlugin extends JavaPlugin {
         }
         if (blockManager != null) {
             blockManager.saveStorage();
+        }
+        if (atmosphereManager != null) {
+            atmosphereManager.shutdown();
+        }
+        if (ecosystemManager != null) {
+            ecosystemManager.shutdown();
+        }
+        if (worldRuleManager != null) {
+            worldRuleManager.shutdown();
         }
         instance = null;
     }
@@ -148,6 +168,18 @@ public class AeternumGenesisPlugin extends JavaPlugin {
 
     public CustomBlockManager getBlockManager() {
         return blockManager;
+    }
+
+    public AtmosphereManager getAtmosphereManager() {
+        return atmosphereManager;
+    }
+
+    public EcosystemManager getEcosystemManager() {
+        return ecosystemManager;
+    }
+
+    public WorldRuleManager getWorldRuleManager() {
+        return worldRuleManager;
     }
 
     public AeternumGenesisAPI getAPI() {

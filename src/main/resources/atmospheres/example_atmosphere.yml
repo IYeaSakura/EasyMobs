@@ -1,0 +1,93 @@
+# AeternumGenesis Example Atmosphere
+# Place files in plugins/AeternumGenesis/atmospheres/ (supports subdirectories)
+
+blood_moon_active:
+  priority: 10
+  stackable: false
+
+  layers:
+    weather:
+      type: "THUNDER"
+
+    potion_effects:
+      - type: "DARKNESS"
+        duration: 200
+        amplifier: 0
+        show_particles: false
+        show_icon: false
+      - type: "SLOWNESS"
+        duration: 200
+        amplifier: 0
+        show_particles: false
+        show_icon: false
+
+    particles:
+      - type: "ASH"
+        density: "high"
+        pattern: "sphere"
+        radius: 30
+        offset: "0,3,0"
+        interval: 5
+      - type: "REDSTONE"
+        color: "#8B0000"
+        count: 20
+        pattern: "ambient"
+        interval: 10
+        radius: 15
+      - type: "FLAME"
+        density: "low"
+        pattern: "ground"
+        interval: 20
+        radius: 20
+
+    sounds:
+      - type: "ambient"
+        id: "AMBIENT_CAVE"
+        volume: 0.4
+        interval: 60
+      - type: "ambient"
+        id: "ENTITY_GHAST_AMBIENT"
+        volume: 0.2
+        interval: 200
+        chance: 0.3
+
+    ui:
+      action_bar: "&4☠ Blood Moon erosion: {progress}%"
+      title:
+        text: "&c&lBlood Moon"
+        subtitle: "&7Darkness consumes the land..."
+        fade_in: 10
+        stay: 60
+        fade_out: 10
+      boss_bar:
+        text: "&c&lBlood Moon Power"
+        color: "RED"
+        style: "SOLID"
+
+    entity_modifiers:
+      - target: "all_monsters"
+        attributes:
+          - type: "attack_damage"
+            amount: 0.3
+            operation: "MULTIPLY_SCALAR_1"
+          - type: "movement_speed"
+            amount: 0.2
+            operation: "MULTIPLY_SCALAR_1"
+        glow: true
+        glow_color: "RED"
+      - target: "players"
+        attributes:
+          - type: "attack_speed"
+            amount: -0.1
+            operation: "MULTIPLY_SCALAR_1"
+
+    environment:
+      fire_spread: false
+      block_melting: false
+      mob_griefing: false
+
+  transition:
+    enter_duration: 100
+    exit_duration: 100
+    exit_potion_clear: true
+    exit_weather_restore: true

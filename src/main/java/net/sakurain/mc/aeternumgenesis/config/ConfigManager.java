@@ -22,6 +22,9 @@ public class ConfigManager {
     private final Map<String, YamlConfiguration> spawnConfigs = new HashMap<>();
     private final Map<String, YamlConfiguration> setConfigs = new HashMap<>();
     private final Map<String, YamlConfiguration> blockConfigs = new HashMap<>();
+    private final Map<String, YamlConfiguration> atmosphereConfigs = new HashMap<>();
+    private final Map<String, YamlConfiguration> ecosystemConfigs = new HashMap<>();
+    private final Map<String, YamlConfiguration> worldRuleConfigs = new HashMap<>();
 
     public ConfigManager(AeternumGenesisPlugin plugin) {
         this.plugin = plugin;
@@ -34,6 +37,9 @@ public class ConfigManager {
         loadConfigs("spawns", spawnConfigs);
         loadConfigs("sets", setConfigs);
         loadConfigs("blocks", blockConfigs);
+        loadConfigs("atmospheres", atmosphereConfigs);
+        loadConfigs("ecosystems", ecosystemConfigs);
+        loadConfigs("worlds", worldRuleConfigs);
     }
 
     public void reloadAll() {
@@ -43,6 +49,9 @@ public class ConfigManager {
         spawnConfigs.clear();
         setConfigs.clear();
         blockConfigs.clear();
+        atmosphereConfigs.clear();
+        ecosystemConfigs.clear();
+        worldRuleConfigs.clear();
         loadAll();
     }
 
@@ -100,5 +109,17 @@ public class ConfigManager {
 
     public Map<String, YamlConfiguration> getBlockConfigs() {
         return Map.copyOf(blockConfigs);
+    }
+
+    public Map<String, YamlConfiguration> getAtmosphereConfigs() {
+        return Map.copyOf(atmosphereConfigs);
+    }
+
+    public Map<String, YamlConfiguration> getEcosystemConfigs() {
+        return Map.copyOf(ecosystemConfigs);
+    }
+
+    public Map<String, YamlConfiguration> getWorldRuleConfigs() {
+        return Map.copyOf(worldRuleConfigs);
     }
 }

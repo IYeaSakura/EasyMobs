@@ -1,5 +1,6 @@
 package net.sakurain.mc.aeternumgenesis.api;
 
+import net.sakurain.mc.aeternumgenesis.api.AtmosphereAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicesManager;
@@ -41,6 +42,9 @@ public interface AeternumGenesisAPI {
 
     @NotNull
     BlockAPI getBlockAPI();
+
+    @NotNull
+    AtmosphereAPI getAtmosphereAPI();
 
     @NotNull
     String getVersion();

@@ -2,6 +2,7 @@ package net.sakurain.mc.aeternumgenesis.api.impl;
 
 import net.sakurain.mc.aeternumgenesis.AeternumGenesisPlugin;
 import net.sakurain.mc.aeternumgenesis.api.*;
+import net.sakurain.mc.aeternumgenesis.api.AtmosphereAPI;
 import net.sakurain.mc.aeternumgenesis.api.BlockAPI;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,6 +16,7 @@ public class AeternumGenesisAPIImpl implements AeternumGenesisAPI {
     private final RegistryAPI registryAPI;
     private final SetAPI setAPI;
     private final BlockAPI blockAPI;
+    private final AtmosphereAPI atmosphereAPI;
 
     public AeternumGenesisAPIImpl(@NotNull AeternumGenesisPlugin plugin) {
         this.plugin = plugin;
@@ -25,6 +27,7 @@ public class AeternumGenesisAPIImpl implements AeternumGenesisAPI {
         this.registryAPI = new RegistryAPIImpl(plugin);
         this.setAPI = new SetAPIImpl(plugin);
         this.blockAPI = new BlockAPIImpl(plugin);
+        this.atmosphereAPI = new AtmosphereAPIImpl(plugin);
     }
 
     @Override
@@ -67,6 +70,12 @@ public class AeternumGenesisAPIImpl implements AeternumGenesisAPI {
     @NotNull
     public BlockAPI getBlockAPI() {
         return blockAPI;
+    }
+
+    @Override
+    @NotNull
+    public AtmosphereAPI getAtmosphereAPI() {
+        return atmosphereAPI;
     }
 
     @Override

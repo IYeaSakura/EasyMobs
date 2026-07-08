@@ -32,6 +32,11 @@ performance:
   # BossBar update interval in ticks
   bossbar-update-interval: 5
 
+# Atmosphere engine settings
+atmosphere:
+  # Tick interval in ticks (lower = smoother but more CPU usage)
+  tick-interval: 5
+
 # Skill effect security
 skills:
   # The execute_command skill effect can run arbitrary server commands.

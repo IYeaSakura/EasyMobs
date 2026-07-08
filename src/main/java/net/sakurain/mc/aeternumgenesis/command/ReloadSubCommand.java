@@ -19,6 +19,10 @@ public class ReloadSubCommand implements SubCommand {
         plugin.getMobManager().reload();
         plugin.getSkillManager().load(plugin.getConfigManager().getSkillConfigs());
         plugin.getSpawnManager().reload();
+        plugin.getBlockManager().loadConfigs(plugin.getConfigManager().getBlockConfigs());
+        plugin.getAtmosphereManager().reload(plugin.getConfigManager().getAtmosphereConfigs());
+        plugin.getEcosystemManager().reload(plugin.getConfigManager().getEcosystemConfigs());
+        plugin.getWorldRuleManager().reload(plugin.getConfigManager().getWorldRuleConfigs());
         sender.sendMessage(MessageUtil.success("Configuration reloaded!"));
         return true;
     }

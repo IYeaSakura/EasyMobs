@@ -1,13 +1,9 @@
 # AeternumGenesis
 
-<div align="center">
-
 [![PaperMC](https://img.shields.io/badge/PaperMC-26.1.2-000000?logo=paper-minecraft)](https://papermc.io/)
 [![Java](https://img.shields.io/badge/Java-25%2B-007396?logo=openjdk)](https://openjdk.org/)
 [![Maven](https://img.shields.io/badge/Maven-3.9%2B-C71A36?logo=apache-maven)](https://maven.apache.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-
-</div>
 
 A lightweight, YAML-driven custom mob and item plugin for **PaperMC 26.1.2**, inspired by MythicMobs. AeternumGenesis lets server owners create custom monsters, equipment, skills, spawn rules, and item sets without touching code or NMS.
 
@@ -44,6 +40,11 @@ A lightweight, YAML-driven custom mob and item plugin for **PaperMC 26.1.2**, in
 - Access item, mob, skill, spawn, set, block, and registry APIs through Bukkit's ServicesManager.
 - Listen to Bukkit events for custom item builds, mob spawns, mob deaths, skill execution, and more.
 - Register custom skill effects, skill conditions, and spawn conditions from external plugins.
+
+### World Systems
+- **Atmosphere Engine** — Apply layered regional atmospheres with weather, potion effects, particles, sounds, UI layers, entity modifiers, and environment rules.
+- **Ecosystems** — Bind custom mobs to biomes with weighted spawn rules, group sizes, density limits, ambient particles, and ambient sounds.
+- **World Rules** — Control global game rules, death behavior, PvP, and damage/hunger multipliers per world.
 
 ### Operational Features
 - Hot-reload all YAML configs in-game with `/genesis reload`.
@@ -102,7 +103,9 @@ AeternumGenesis/
 │   ├── block/                                       # Custom block system
 │   ├── listener/                                    # Event listeners
 │   ├── ai/                                          # Custom AI goals
-│   └── util/                                        # Utility classes
+│   ├── util/                                        # Utility classes
+│   ├── atmosphere/                                  # Atmosphere engine
+│   └── world/                                       # World rule manager
 ├── src/main/resources/                              # Default configuration templates
 │   ├── plugin.yml                                   # Plugin descriptor
 │   ├── config.yml                                   # Main configuration
@@ -111,7 +114,10 @@ AeternumGenesis/
 │   ├── skills/example_skills.yml                    # Example skill templates
 │   ├── spawns/example_spawns.yml                    # Example spawn rules
 │   ├── sets/example_set.yml                         # Example item set
-│   └── blocks/example_blocks.yml                    # Example custom blocks
+│   ├── blocks/example_blocks.yml                    # Example custom blocks
+│   ├── atmospheres/example_atmosphere.yml           # Example atmosphere
+│   ├── ecosystems/example_ecosystem.yml             # Example ecosystem
+│   └── worlds/world_rules.yml                       # Example world rules
 ├── test/                                            # Test server configuration templates
 ├── examples/rpg-integration/                        # Example external plugin
 ├── .doc/                                            # Internal documentation and skills
@@ -268,6 +274,7 @@ if (AeternumGenesisAPI.isAvailable()) {
 | `SetAPI` | Query item sets and their bonuses |
 | `BlockAPI` | Query and register custom blocks |
 | `RegistryAPI` | Register custom effects and conditions |
+| `AtmosphereAPI` | Apply, remove, and query active atmospheres |
 
 ### Spawn a Mob
 
@@ -303,6 +310,12 @@ public void onCustomMobDeath(CustomMobDeathEvent event) {
 ```java
 api.getRegistryAPI().registerEffect("freeze", () -> new FreezeEffect());
 api.getRegistryAPI().registerCondition("has_permission", () -> new HasPermissionCondition());
+```
+
+### Apply an Atmosphere
+
+```java
+UUID instance = api.getAtmosphereAPI().applyAtmosphere(location, 50.0, "blood_moon_active", 1200L);
 ```
 
 ### Available Events
@@ -413,6 +426,89 @@ blood_zombie_night:
     - night true
     - outside true
     - light_level "0-7"
+```
+
+### Atmosphere
+
+Create `plugins/AeternumGenesis/atmospheres/my_atmospheres.yml`:
+
+```yaml
+blood_moon_active:
+  priority: 10
+  stackable: false
+  layers:
+    weather:
+      type: "THUNDER"
+    potion_effects:
+      - type: "DARKNESS"
+        duration: 200
+        amplifier: 0
+        show_particles: false
+        show_icon: false
+    particles:
+      - type: "ASH"
+        density: "high"
+        pattern: "sphere"
+        radius: 30
+        offset: "0,3,0"
+        interval: 5
+    sounds:
+      - type: "ambient"
+        id: "AMBIENT_CAVE"
+        volume: 0.4
+        interval: 60
+    ui:
+      action_bar: "&4Blood Moon erosion: {progress}%"
+      boss_bar:
+        text: "&c&lBlood Moon Power"
+        color: "RED"
+        style: "SOLID"
+```
+
+Apply in-game:
+
+```
+/genesis atmosphere apply blood_moon_active 50 60
+```
+
+### Ecosystem
+
+Create `plugins/AeternumGenesis/ecosystems/my_ecosystems.yml`:
+
+```yaml
+corrupted_forest:
+  biomes:
+    - "dark_forest"
+    - "old_growth_pine_taiga"
+  spawn_rules:
+    blood_zombie:
+      weight: 40
+      group_size: "2-5"
+      max_per_chunk: 8
+  ambient_particles:
+    - type: "ASH"
+      density: "medium"
+      height: "ground+2"
+      interval: 40
+```
+
+### World Rules
+
+Create `plugins/AeternumGenesis/worlds/world_rules.yml`:
+
+```yaml
+world_rules:
+  global:
+    weather_cycle: true
+    natural_regeneration: false
+    mob_griefing: false
+  death:
+    keep_inventory: false
+    death_message_format: "&c{player} &7fell in {world}..."
+  player:
+    pvp: true
+    fall_damage_multiplier: 1.0
+    fire_damage_multiplier: 1.0
 ```
 
 ---

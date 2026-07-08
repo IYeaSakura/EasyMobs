@@ -1,0 +1,20 @@
+# AeternumGenesis Example World Rules
+# Place this file in plugins/AeternumGenesis/worlds/world_rules.yml
+
+world_rules:
+  global:
+    weather_cycle: true
+    natural_regeneration: false
+    mob_griefing: false
+
+  death:
+    keep_inventory: false
+    keep_experience: false
+    respawn_world: "world"
+    death_message_format: "&c{player} &7fell in {world}..."
+
+  player:
+    pvp: true
+    fall_damage_multiplier: 1.0
+    fire_damage_multiplier: 1.0
+    hunger_drain_rate: 1.0
